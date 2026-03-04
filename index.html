@@ -342,9 +342,8 @@
                 checkedState[currentTab].splice(idx, 1);
             } else {
                 checkedState[currentTab].push(id);
-                // Vibrar e iniciar timer ao concluir um exercício
+                // Apenas vibrar (se suportado) ao marcar um exercício como concluído
                 if (navigator.vibrate) navigator.vibrate(50);
-                startTimer(60); 
             }
             
             localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
