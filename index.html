@@ -1,52 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Treino Cristal</title>
-    <!-- PWA iPhone -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Treino Cristal">
-    <meta name="theme-color" content="#2563EB">
+    <meta name="theme-color" content="#2563eb">
+    <title>Meu App de Treinos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#121212',
+                        darkcard: '#1e1e1e'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Animação suave para o checkbox */
-        .checkbox-custom {
-            transition: all 0.2s ease-in-out;
-        }
-        .checkbox-custom.checked {
-            background-color: #10B981;
-            border-color: #10B981;
-        }
-        /* Esconder scrollbar na navegação de abas */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        body {
-            -webkit-tap-highlight-color: transparent;
-        }
+        .checkbox-custom { transition: all 0.2s ease-in-out; }
+        .checkbox-custom.checked { background-color: #10B981; border-color: #10B981; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { -webkit-tap-highlight-color: transparent; transition: background-color 0.3s; }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans antialiased">
+<body class="bg-gray-100 dark:bg-darkbg text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
 
-    <!-- Container Principal simulando tela de celular -->
-    <div class="max-w-md mx-auto bg-white min-h-screen relative shadow-2xl flex flex-col">
+    <div class="max-w-md mx-auto bg-white dark:bg-darkbg min-h-screen relative shadow-2xl flex flex-col">
         
         <!-- Header -->
-        <header class="bg-blue-600 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-20">
+        <header class="bg-blue-600 dark:bg-blue-800 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-30 transition-colors duration-300">
             <div class="flex justify-between items-center mb-3">
-                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Meus Treinos</h1>
-                <button onclick="toggleHistory()" class="text-blue-100 hover:text-white transition">
-                    <i class="fa-solid fa-clock-rotate-left text-xl"></i>
-                </button>
+                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Treinos</h1>
+                <div class="flex space-x-4">
+                    <button onclick="toggleTheme()" class="text-blue-100 hover:text-white transition">
+                        <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
+                    </button>
+                    <button onclick="toggleHistory()" class="text-blue-100 hover:text-white transition">
+                        <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                    </button>
+                    <button onclick="toggleSettings()" class="text-blue-100 hover:text-white transition">
+                        <i class="fa-solid fa-gear text-xl"></i>
+                    </button>
+                </div>
             </div>
-            <div class="flex justify-between items-center bg-blue-700/50 rounded-lg p-3">
+            <div class="flex justify-between items-center bg-blue-700/50 dark:bg-blue-900/50 rounded-lg p-3">
                 <div>
                     <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Jornada</p>
                     <p class="font-bold text-lg" id="days-passed-display">0 Dias</p>
@@ -58,213 +62,225 @@
             </div>
         </header>
 
-        <!-- Navegação de Treinos (Abas) -->
-        <div class="px-2 pt-4 pb-2 border-b bg-white sticky top-[120px] z-10">
-            <div class="flex overflow-x-auto no-scrollbar space-x-2 pb-2" id="tabs-container">
-                <!-- Abas serão injetadas aqui pelo JS -->
-            </div>
+        <!-- Navegação de Treinos -->
+        <div class="px-2 pt-4 pb-2 border-b dark:border-gray-800 bg-white dark:bg-darkbg sticky top-[120px] z-20 transition-colors duration-300">
+            <div class="flex overflow-x-auto no-scrollbar space-x-2 pb-2" id="tabs-container"></div>
         </div>
 
         <!-- Lista de Exercícios -->
-        <main class="flex-1 overflow-y-auto p-4 pb-24 bg-gray-50" id="exercises-container">
-            <!-- Exercícios serão injetados aqui -->
-        </main>
+        <main class="flex-1 overflow-y-auto p-4 pb-48 bg-gray-50 dark:bg-[#121212]" id="exercises-container"></main>
 
-        <!-- Botão Finalizar -->
-        <div class="fixed bottom-0 w-full max-w-md bg-white p-4 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
-            <button onclick="finishWorkout()" class="w-full bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform active:scale-[0.98] flex justify-center items-center text-lg">
-                <i class="fa-solid fa-check-circle mr-2"></i> Finalizar Treino do Dia
+        <!-- Cronômetro Flutuante (Destacado) -->
+        <div id="timer-bar" class="fixed bottom-28 left-4 right-4 max-w-[360px] mx-auto bg-indigo-600 dark:bg-indigo-500 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.6)] hidden justify-between items-center z-50 border-2 border-indigo-400/50">
+            <div class="flex items-center space-x-4">
+                <div class="bg-indigo-800/50 p-3 rounded-full flex justify-center items-center">
+                    <i class="fa-solid fa-stopwatch text-2xl animate-pulse"></i>
+                </div>
+                <div>
+                    <span id="timer-text" class="font-mono font-bold text-3xl tracking-wider drop-shadow-md">01:00</span>
+                    <span class="text-sm block text-indigo-200 font-medium -mt-1">Descanso</span>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="addTimerTime(30)" class="bg-indigo-400 hover:bg-indigo-300 active:scale-95 text-indigo-900 w-12 h-12 rounded-full flex justify-center items-center font-black text-sm shadow-md transition">+30s</button>
+                <button onclick="stopTimer()" class="bg-red-500 hover:bg-red-400 active:scale-95 text-white w-12 h-12 rounded-full flex justify-center items-center shadow-md transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+        </div>
+
+        <!-- Botões Footer -->
+        <div class="fixed bottom-0 w-full max-w-md bg-white dark:bg-darkcard p-4 border-t dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex space-x-3 transition-colors duration-300">
+            <button onclick="startTimer(60)" class="w-1/3 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold py-3 rounded-xl shadow-sm transition active:scale-[0.98] flex flex-col justify-center items-center text-sm">
+                <i class="fa-solid fa-stopwatch text-lg mb-1"></i> Timer 60s
+            </button>
+            <button onclick="finishWorkout()" class="w-2/3 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.98] flex flex-col justify-center items-center text-lg">
+                <span class="flex items-center"><i class="fa-solid fa-check-circle mr-2"></i> Finalizar</span>
             </button>
         </div>
 
-        <!-- Modal de Histórico (Oculto por padrão) -->
-        <div id="history-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-center items-end sm:items-center">
-            <div class="bg-white w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full sm:translate-y-0 duration-300" id="history-content">
-                <div class="flex justify-between items-center mb-4 border-b pb-3">
-                    <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Histórico de Treinos</h2>
-                    <button onclick="toggleHistory()" class="text-gray-500 hover:text-gray-800 p-2">
-                        <i class="fa-solid fa-xmark text-2xl"></i>
-                    </button>
+        <!-- Modal Histórico -->
+        <div id="history-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
+            <div class="bg-white dark:bg-darkcard w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300" id="history-content">
+                <div class="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
+                    <h2 class="text-xl font-bold dark:text-white"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Histórico</h2>
+                    <button onclick="toggleHistory()" class="text-gray-500 dark:text-gray-400 p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
                 </div>
-                <div class="flex-1 overflow-y-auto pr-2" id="history-list">
-                    <!-- Histórico será injetado aqui -->
-                </div>
+                <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="history-list"></div>
             </div>
         </div>
 
-        <!-- Banner instalar como App (iOS) -->
-        <div id="install-banner" class="fixed top-0 left-0 right-0 z-50 max-w-md mx-auto hidden">
-            <div class="bg-blue-700 text-white px-4 py-3 flex items-center justify-between text-sm shadow-lg">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-mobile-screen text-lg"></i>
+        <!-- Modal Configurações / Edição -->
+        <div id="settings-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
+            <div class="bg-white dark:bg-darkcard w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300" id="settings-content">
+                <div class="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
+                    <h2 class="text-xl font-bold dark:text-white"><i class="fa-solid fa-gear text-blue-500 mr-2"></i>Configurações</h2>
+                    <button onclick="toggleSettings()" class="text-gray-500 dark:text-gray-400 p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto pr-2 space-y-6">
+                    <!-- Sessão de Edição do Treino Atual -->
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <h3 class="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-between">
+                            <span>Editar: <span id="edit-tab-name"></span></span>
+                            <button onclick="openAddExercise()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded"><i class="fa-solid fa-plus"></i> Novo</button>
+                        </h3>
+                        <div id="edit-exercises-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- Dados e Backup -->
                     <div>
-                        <p class="font-bold leading-tight">Instalar como App</p>
-                        <p class="text-blue-200 text-xs">Toque em <i class="fa-solid fa-arrow-up-from-bracket mx-1"></i> depois "Tela de Início"</p>
+                        <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Backup e Dados</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="exportData()" class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-download mr-1"></i> Exportar</button>
+                            <label class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 text-center cursor-pointer flex items-center justify-center">
+                                <i class="fa-solid fa-upload mr-1"></i> Importar
+                                <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <button onclick="document.getElementById('install-banner').classList.add('hidden')" class="text-blue-200 hover:text-white pl-3">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
             </div>
         </div>
 
-        <!-- Alerta de Sucesso (Toast) -->
-        <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 flex items-center">
+        <!-- Toast -->
+        <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-[60] flex items-center">
             <i class="fa-solid fa-circle-check text-green-400 mr-2 text-xl"></i>
-            <span id="toast-message" class="font-medium">Treino salvo!</span>
+            <span id="toast-message" class="font-medium">Ação realizada!</span>
         </div>
 
     </div>
 
     <script>
-        // ── IndexedDB helper ──────────────────────────────────────────────
-        const DB_NAME = 'TreinoCristalDB';
-        const DB_VERSION = 1;
-        let db = null;
-
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                const req = indexedDB.open(DB_NAME, DB_VERSION);
-                req.onupgradeneeded = e => {
-                    const d = e.target.result;
-                    if (!d.objectStoreNames.contains('store')) {
-                        d.createObjectStore('store');
-                    }
-                };
-                req.onsuccess = e => { db = e.target.result; resolve(db); };
-                req.onerror   = e => reject(e);
-            });
-        }
-
-        function dbGet(key) {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction('store', 'readonly');
-                const req = tx.objectStore('store').get(key);
-                req.onsuccess = () => resolve(req.result ?? null);
-                req.onerror   = e => reject(e);
-            });
-        }
-
-        function dbSet(key, value) {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction('store', 'readwrite');
-                const req = tx.objectStore('store').put(value, key);
-                req.onsuccess = () => resolve();
-                req.onerror   = e => reject(e);
-            });
-        }
-        // ─────────────────────────────────────────────────────────────────
-
-        // 1. DADOS DOS TREINOS (Extraídos das imagens)
-        const workoutData = {
+        // --- 1. DADOS PADRÃO ---
+        const defaultWorkoutData = {
             'Quadríceps': [
-                { name: 'AGACHAMENTO CORPORAL', sets: '3', reps: '12' },
-                { name: 'CADEIRA EXTENSORA', sets: '3', reps: '12' },
-                { name: 'LEG PRESS 45', sets: '3', reps: '12' },
-                { name: 'CADEIRA ADUTORA', sets: '3', reps: '12' },
-                { name: 'PANTURRILHA SENTADA', sets: '3', reps: '12' },
-                { name: 'ABD INFRA', sets: '3', reps: '10' },
-                { name: 'OBLÍQUO ANILHA', sets: '3', reps: '10' }
+                { id: 'q1', name: 'AGACHAMENTO CORPORAL', sets: '3', reps: '12' },
+                { id: 'q2', name: 'CADEIRA EXTENSORA', sets: '3', reps: '12' },
+                { id: 'q3', name: 'LEG PRESS 45', sets: '3', reps: '12' },
+                { id: 'q4', name: 'CADEIRA ADUTORA', sets: '3', reps: '12' },
+                { id: 'q5', name: 'PANTURRILHA SENTADA', sets: '3', reps: '12' },
+                { id: 'q6', name: 'ABD INFRA', sets: '3', reps: '10' },
+                { id: 'q7', name: 'OBLÍQUO ANILHA', sets: '3', reps: '10' }
             ],
             'Peito e Bíceps': [
-                { name: 'SUPINO INCLINADO', sets: '3', reps: '12' },
-                { name: 'SUPINO RETO MAQUINA', sets: '3', reps: '12' },
-                { name: 'PECK DECK', sets: '3', reps: '12' },
-                { name: 'ROSCA 90º', sets: '3', reps: '12' },
-                { name: 'ROSCA MARTELO', sets: '3', reps: '12' },
-                { name: 'ROSCA DIRETA', sets: '3', reps: '12' },
-                { name: 'ABD REMADOR', sets: '3', reps: '12' },
-                { name: 'CARDIO', sets: '-', reps: '-' }
+                { id: 'p1', name: 'SUPINO INCLINADO', sets: '3', reps: '12' },
+                { id: 'p2', name: 'SUPINO RETO MAQUINA', sets: '3', reps: '12' },
+                { id: 'p3', name: 'PECK DECK', sets: '3', reps: '12' },
+                { id: 'p4', name: 'ROSCA 90º', sets: '3', reps: '12' },
+                { id: 'p5', name: 'ROSCA MARTELO', sets: '3', reps: '12' },
+                { id: 'p6', name: 'ROSCA DIRETA', sets: '3', reps: '12' },
+                { id: 'p7', name: 'ABD REMADOR', sets: '3', reps: '12' },
+                { id: 'p8', name: 'CARDIO', sets: '-', reps: '-' }
             ],
             'Posterior e Glút': [
-                { name: 'CADEIRA FLEXORA', sets: '3', reps: '12' },
-                { name: 'MESA FLEXORA', sets: '3', reps: '12' },
-                { name: 'STIFF', sets: '3', reps: '15' },
-                { name: 'CADEIRA ABDUTORA', sets: '3', reps: '8-12' },
-                { name: 'ELEVAÇÃO PÉLVICA', sets: '3', reps: '12' },
-                { name: 'GLÚTEO NA MÁQUINA', sets: '3', reps: '15' },
-                { name: 'ABD MÁQUINA', sets: '3', reps: '15' }
+                { id: 'g1', name: 'CADEIRA FLEXORA', sets: '3', reps: '12' },
+                { id: 'g2', name: 'MESA FLEXORA', sets: '3', reps: '12' },
+                { id: 'g3', name: 'STIFF', sets: '3', reps: '15' },
+                { id: 'g4', name: 'CADEIRA ABDUTORA', sets: '3', reps: '8-12' },
+                { id: 'g5', name: 'ELEVAÇÃO PÉLVICA', sets: '3', reps: '12' },
+                { id: 'g6', name: 'GLÚTEO NA MÁQUINA', sets: '3', reps: '15' },
+                { id: 'g7', name: 'ABD MÁQUINA', sets: '3', reps: '15' }
             ],
             'Costas e Tríceps': [
-                { name: 'PULLEY FRENTE', sets: '3', reps: '12' },
-                { name: 'REMADA CURVADA', sets: '3', reps: '12' },
-                { name: 'CRUCIFIXO INVERSO', sets: '3', reps: '15' },
-                { name: 'TRÍCEPS FRANCÊS', sets: '3', reps: '12' },
-                { name: 'TRÍCEPS PULLEY', sets: '3', reps: '12' },
-                { name: 'DESENVOLVIMENTO MÁQUINA', sets: '3', reps: '12' },
-                { name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
-                { name: 'CARDIO', sets: '-', reps: '-' }
+                { id: 'c1', name: 'PULLEY FRENTE', sets: '3', reps: '12' },
+                { id: 'c2', name: 'REMADA CURVADA', sets: '3', reps: '12' },
+                { id: 'c3', name: 'CRUCIFIXO INVERSO', sets: '3', reps: '15' },
+                { id: 'c4', name: 'TRÍCEPS FRANCÊS', sets: '3', reps: '12' },
+                { id: 'c5', name: 'TRÍCEPS PULLEY', sets: '3', reps: '12' },
+                { id: 'c6', name: 'DESENVOLVIMENTO MÁQUINA', sets: '3', reps: '12' },
+                { id: 'c7', name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
+                { id: 'c8', name: 'CARDIO', sets: '-', reps: '-' }
             ],
             'FULL BODY': [
-                { name: 'SUPINO INCLINADO', sets: '3', reps: '15' },
-                { name: 'PULLEY FRENTE', sets: '3', reps: '15' },
-                { name: 'CADEIRA EXTENSORA', sets: '3', reps: '15' },
-                { name: 'MESA FLEXORA', sets: '3', reps: '12' },
-                { name: 'ROSCA ALTERNADA', sets: '3', reps: '15' },
-                { name: 'TRÍCEPS MÁQUINA', sets: '3', reps: '15' },
-                { name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
-                { name: 'ABD SUPRA', sets: '3', reps: '15' }
+                { id: 'f1', name: 'SUPINO INCLINADO', sets: '3', reps: '15' },
+                { id: 'f2', name: 'PULLEY FRENTE', sets: '3', reps: '15' },
+                { id: 'f3', name: 'CADEIRA EXTENSORA', sets: '3', reps: '15' },
+                { id: 'f4', name: 'MESA FLEXORA', sets: '3', reps: '12' },
+                { id: 'f5', name: 'ROSCA ALTERNADA', sets: '3', reps: '15' },
+                { id: 'f6', name: 'TRÍCEPS MÁQUINA', sets: '3', reps: '15' },
+                { id: 'f7', name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
+                { id: 'f8', name: 'ABD SUPRA', sets: '3', reps: '15' }
             ]
         };
 
+        // --- 2. STATE MANAGEMENT ---
+        let workoutData = JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData;
+        
+        // Corrige dados antigos (adiciona IDs se não tiver)
+        Object.keys(workoutData).forEach(tab => {
+            workoutData[tab].forEach(ex => { if(!ex.id) ex.id = Math.random().toString(36).substr(2, 9); });
+        });
+        localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
+
         const tabs = Object.keys(workoutData);
-        let currentTab = tabs[0];
+        let currentTab = localStorage.getItem('currentTab') || tabs[0];
+        
+        // Estado de exercícios checados baseado em IDs
+        let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
+        // Pesos salvos (Key: ID do exercicio)
+        let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
+        let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
+        let startDate = localStorage.getItem('workoutStartDate');
+        
+        if (!startDate) {
+            startDate = new Date().toISOString();
+            localStorage.setItem('workoutStartDate', startDate);
+        }
 
-        // 2. STATE (carregado do IndexedDB ao iniciar)
-        let checkedState = {};
-        let workoutHistory = [];
-        let startDate = null;
-
-        // 3. FUNÇÕES DE RENDERIZAÇÃO
-        async function init() {
-            await openDB();
-
-            checkedState  = (await dbGet('workoutCheckedState')) || {};
-            workoutHistory = (await dbGet('workoutHistory'))     || [];
-            startDate      = await dbGet('workoutStartDate');
-
-            if (!startDate) {
-                startDate = new Date().toISOString();
-                await dbSet('workoutStartDate', startDate);
-            }
-
+        // --- 3. INICIALIZAÇÃO E TEMA ---
+        function init() {
+            initTheme();
             updateHeaderDates();
             renderTabs();
             renderExercises();
             renderHistory();
-            setInterval(updateHeaderDates, 60000);
+            setInterval(updateHeaderDates, 60000); 
+        }
+
+        function initTheme() {
+            const isDark = localStorage.getItem('theme') === 'dark';
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = "fa-solid fa-sun text-xl text-yellow-300";
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.className = "fa-solid fa-moon text-xl text-blue-100";
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.className = "fa-solid fa-sun text-xl text-yellow-300";
+            }
         }
 
         function updateHeaderDates() {
-            // Exibir data atual
             const now = new Date();
-            const options = { weekday: 'short', day: '2-digit', month: 'short' };
-            document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', options).toUpperCase();
+            document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).toUpperCase();
 
-            // Calcular dias passados
             const start = new Date(startDate);
-            // Zera as horas para calcular apenas a diferença de dias calendário
             start.setHours(0,0,0,0);
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            
-            const diffTime = Math.abs(today - start);
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
+            now.setHours(0,0,0,0);
+            const diffDays = Math.floor(Math.abs(now - start) / (1000 * 60 * 60 * 24));
             document.getElementById('days-passed-display').innerText = diffDays === 1 ? '1 Dia' : `${diffDays} Dias`;
         }
 
+        // --- 4. RENDERIZAÇÃO PRINCIPAL ---
         function renderTabs() {
             const container = document.getElementById('tabs-container');
             container.innerHTML = '';
-
             tabs.forEach(tab => {
                 const isActive = tab === currentTab;
                 const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-in-out ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+                btn.className = `flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-in-out ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`;
                 btn.innerText = tab;
                 btn.onclick = () => {
                     currentTab = tab;
+                    localStorage.setItem('currentTab', currentTab);
                     renderTabs();
                     renderExercises();
                 };
@@ -276,208 +292,344 @@
             const container = document.getElementById('exercises-container');
             container.innerHTML = '';
             
-            const exercises = workoutData[currentTab];
-            
-            // Animação de entrada
+            const exercises = workoutData[currentTab] || [];
             container.style.opacity = 0;
             
-            exercises.forEach((ex, index) => {
-                const isChecked = checkedState[currentTab] && checkedState[currentTab].includes(index);
+            exercises.forEach((ex) => {
+                const isChecked = checkedState[currentTab] && checkedState[currentTab].includes(ex.id);
+                const weight = exerciseWeights[ex.id] || '';
                 
                 const card = document.createElement('div');
-                card.className = `bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between transition-all duration-200 cursor-pointer active:scale-[0.98] ${isChecked ? 'opacity-70' : ''}`;
-                // Faz o card inteiro ser clicável
-                card.onclick = () => toggleExercise(index);
-
+                card.className = `bg-white dark:bg-darkcard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-3 transition-all duration-200 ${isChecked ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : ''}`;
+                
                 card.innerHTML = `
-                    <div class="flex-1 pr-4">
-                        <h3 class="font-bold text-gray-800 ${isChecked ? 'line-through text-gray-400' : ''} text-[15px]">${ex.name}</h3>
-                        <p class="text-sm text-gray-500 mt-1 font-medium">
-                            <i class="fa-solid fa-repeat text-blue-400 mr-1 text-xs"></i> 
-                            Séries: <span class="text-gray-700">${ex.sets}</span> | Repetições: <span class="text-gray-700">${ex.reps}</span>
-                        </p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center checkbox-custom ${isChecked ? 'checked border-green-500 bg-green-500' : 'border-gray-300 bg-white'}">
-                            <i class="fa-solid fa-check text-white text-sm ${isChecked ? 'block' : 'hidden'}"></i>
+                    <div class="flex items-center justify-between cursor-pointer" onclick="toggleExercise('${ex.id}')">
+                        <div class="flex-1 pr-4">
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200 ${isChecked ? 'line-through text-gray-400 dark:text-gray-500' : ''} text-[15px]">${ex.name}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">
+                                <i class="fa-solid fa-repeat text-blue-400 mr-1 text-xs"></i> 
+                                Séries: <span class="text-gray-700 dark:text-gray-300">${ex.sets}</span> | Reps: <span class="text-gray-700 dark:text-gray-300">${ex.reps}</span>
+                            </p>
                         </div>
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center checkbox-custom ${isChecked ? 'checked border-green-500 bg-green-500' : 'border-gray-300 dark:border-gray-600 bg-transparent'}">
+                                <i class="fa-solid fa-check text-white text-sm ${isChecked ? 'block' : 'hidden'}"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Separador Input de Carga -->
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center">
+                        <i class="fa-solid fa-weight-hanging text-gray-400 mr-2 text-sm"></i>
+                        <input type="text" placeholder="Carga (ex: 20kg)" value="${weight}" 
+                            onchange="saveWeight('${ex.id}', this.value)" 
+                            class="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1 w-full text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500">
                     </div>
                 `;
                 container.appendChild(card);
             });
 
-            // Fade in
             setTimeout(() => {
                 container.style.transition = 'opacity 0.3s';
                 container.style.opacity = 1;
             }, 50);
         }
 
-        async function toggleExercise(index) {
-            if (!checkedState[currentTab]) {
-                checkedState[currentTab] = [];
-            }
+        function toggleExercise(id) {
+            if (!checkedState[currentTab]) checkedState[currentTab] = [];
+            const idx = checkedState[currentTab].indexOf(id);
             
-            const idx = checkedState[currentTab].indexOf(index);
             if (idx > -1) {
-                checkedState[currentTab].splice(idx, 1); // Desmarca
+                checkedState[currentTab].splice(idx, 1);
             } else {
-                checkedState[currentTab].push(index); // Marca
+                checkedState[currentTab].push(id);
+                // Vibrar e iniciar timer ao concluir um exercício
+                if (navigator.vibrate) navigator.vibrate(50);
+                startTimer(60); 
             }
             
-            // Salva no IndexedDB
-            await dbSet('workoutCheckedState', checkedState);
-            
-            // Re-renderiza a lista para atualizar a UI
+            localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
             renderExercises();
         }
 
-        // 4. LÓGICA DE FINALIZAR TREINO
-        async function finishWorkout() {
-            // Verifica se pelo menos 1 exercício foi feito na aba atual
+        function saveWeight(id, value) {
+            exerciseWeights[id] = value;
+            localStorage.setItem('appWeights', JSON.stringify(exerciseWeights));
+        }
+
+        // --- 5. CRONÔMETRO ---
+        let timerInterval;
+        let timeLeft = 0;
+
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            timeLeft = seconds;
+            document.getElementById('timer-bar').classList.remove('hidden');
+            document.getElementById('timer-bar').classList.add('flex');
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if(timeLeft <= 0) {
+                    stopTimer();
+                    playBeep();
+                    if(navigator.vibrate) navigator.vibrate([100, 100, 100]);
+                    showToast("Tempo de descanso finalizado!");
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer-text').innerText = `${m}:${s}`;
+        }
+
+        function addTimerTime(seconds) {
+            timeLeft += seconds;
+            updateTimerDisplay();
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer-bar').classList.add('hidden');
+            document.getElementById('timer-bar').classList.remove('flex');
+        }
+
+        function playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } catch(e) {}
+        }
+
+        // --- 6. LÓGICA DE FINALIZAR E DESCANSO ---
+        function advanceTab() {
+            const currentIndex = tabs.indexOf(currentTab);
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= tabs.length) nextIndex = 0;
+            currentTab = tabs[nextIndex];
+            localStorage.setItem('currentTab', currentTab);
+        }
+
+        function finishWorkout() {
+            const exercises = workoutData[currentTab] || [];
             const doneCount = (checkedState[currentTab] || []).length;
-            const totalCount = workoutData[currentTab].length;
+            const totalCount = exercises.length;
 
             if (doneCount === 0) {
-                alert("Você não marcou nenhum exercício neste treino ainda!");
+                alert("Você não marcou nenhum exercício!");
                 return;
             }
 
             if (doneCount < totalCount) {
-                const confirmar = confirm(`Você completou ${doneCount} de ${totalCount} exercícios. Deseja finalizar o treino mesmo assim?`);
-                if (!confirmar) return;
+                if (!confirm(`Completou ${doneCount} de ${totalCount}. Finalizar mesmo assim?`)) return;
             }
 
-            // Registra no histórico
             const now = new Date();
-            const dateStr = now.toLocaleDateString('pt-BR');
-            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' });
-
             workoutHistory.unshift({
                 id: Date.now(),
+                type: 'workout',
                 tabName: currentTab,
-                date: dateStr,
-                time: timeStr,
+                date: now.toLocaleDateString('pt-BR'),
+                time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }),
                 exercisesDone: doneCount,
                 totalExercises: totalCount
             });
 
-            // Limita o histórico aos últimos 50 treinos para não pesar
             if(workoutHistory.length > 50) workoutHistory.pop();
+            localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
 
-            await dbSet('workoutHistory', workoutHistory);
-
-            // Limpa os checkboxes APENAS da aba atual (pois ele finalizou essa aba)
             checkedState[currentTab] = [];
-            await dbSet('workoutCheckedState', checkedState);
-
-            // Guarda o nome do treino finalizado para a mensagem
-            const finishedTab = currentTab;
-
-            // Avança para a próxima aba automaticamente
-            const currentIndex = tabs.indexOf(currentTab);
-            let nextIndex = currentIndex + 1;
-            // Se chegou no último treino da lista, volta para o primeiro
-            if (nextIndex >= tabs.length) {
-                nextIndex = 0;
-            }
-            currentTab = tabs[nextIndex];
-
-            // Atualiza interface
+            localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
+            stopTimer();
+            
+            const finished = currentTab;
+            advanceTab();
+            
             renderTabs();
             renderExercises();
             renderHistory();
-            
-            // Rola a tela para o topo
             document.getElementById('exercises-container').scrollTop = 0;
-
-            // Mostra mensagem de sucesso
-            showToast(`Treino finalizado! Próximo: ${currentTab}`);
+            showToast(`${finished} finalizado! Próximo: ${currentTab}`);
         }
 
         function renderHistory() {
             const list = document.getElementById('history-list');
-            
             if (workoutHistory.length === 0) {
-                list.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-gray-400 py-10 text-center">
-                        <i class="fa-solid fa-box-open text-4xl mb-3 opacity-50"></i>
-                        <p>Nenhum treino finalizado ainda.</p>
-                        <p class="text-sm">Seu histórico aparecerá aqui.</p>
-                    </div>`;
+                list.innerHTML = `<p class="text-center text-gray-400 mt-10">Nenhum histórico.</p>`;
                 return;
             }
 
             list.innerHTML = '';
             workoutHistory.forEach(item => {
-                const isComplete = item.exercisesDone === item.totalExercises;
-                const card = document.createElement('div');
-                card.className = 'bg-gray-50 border border-gray-100 p-4 rounded-lg mb-3 flex items-center justify-between';
-                card.innerHTML = `
-                    <div>
-                        <h4 class="font-bold text-gray-800 flex items-center">
-                            ${item.tabName}
-                            ${isComplete 
-                                ? '<i class="fa-solid fa-star text-yellow-400 text-xs ml-2" title="Treino 100% Completo"></i>' 
-                                : ''}
-                        </h4>
-                        <p class="text-xs text-gray-500 mt-1"><i class="fa-regular fa-calendar mr-1"></i> ${item.date} às ${item.time}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">
-                            ${item.exercisesDone}/${item.totalExercises} exc.
-                        </span>
-                    </div>
-                `;
-                list.appendChild(card);
+                const isRest = item.type === 'rest';
+                const isComplete = !isRest && item.exercisesDone === item.totalExercises;
+                
+                let html = `
+                    <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 p-3 rounded-lg flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-gray-800 dark:text-gray-200 flex items-center">
+                                ${isRest ? '<i class="fa-solid fa-bed text-blue-400 mr-2"></i>' : ''} ${item.tabName}
+                                ${isComplete ? '<i class="fa-solid fa-star text-yellow-500 text-xs ml-2"></i>' : ''}
+                            </h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${item.date} às ${item.time}</p>
+                        </div>`;
+                
+                if(!isRest) {
+                    html += `<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded font-bold">${item.exercisesDone}/${item.totalExercises}</span>`;
+                }
+                
+                html += `</div>`;
+                list.insertAdjacentHTML('beforeend', html);
             });
         }
 
-        // 5. UTILITÁRIOS (Modal, Toast)
+        // --- 7. CONFIGURAÇÕES E EDIÇÃO (NOVO) ---
         function toggleHistory() {
-            const modal = document.getElementById('history-modal');
-            const content = document.getElementById('history-content');
-            
-            if (modal.classList.contains('hidden')) {
-                // Abrir
-                modal.classList.remove('hidden');
-                // Pequeno delay para a transição do Tailwind funcionar
-                setTimeout(() => {
-                    content.classList.remove('translate-y-full');
-                }, 10);
-            } else {
-                // Fechar
-                content.classList.add('translate-y-full');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300); // Tempo da transição
+            toggleModal('history-modal', 'history-content');
+        }
+        function toggleSettings() {
+            toggleModal('settings-modal', 'settings-content');
+            if (!document.getElementById('settings-modal').classList.contains('hidden')) {
+                renderEditList();
             }
+        }
+
+        function toggleModal(bgId, contentId) {
+            const modal = document.getElementById(bgId);
+            const content = document.getElementById(contentId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => content.classList.remove('translate-y-full'), 10);
+            } else {
+                content.classList.add('translate-y-full');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function renderEditList() {
+            document.getElementById('edit-tab-name').innerText = currentTab;
+            const list = document.getElementById('edit-exercises-list');
+            list.innerHTML = '';
+            const exercises = workoutData[currentTab];
+
+            exercises.forEach((ex, index) => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-700 text-sm";
+                item.innerHTML = `
+                    <div class="truncate flex-1 font-medium dark:text-gray-200">${ex.name}</div>
+                    <div class="flex space-x-1 ml-2">
+                        <button onclick="moveExercise(${index}, -1)" class="p-1 text-gray-400 hover:text-blue-500"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveExercise(${index}, 1)" class="p-1 text-gray-400 hover:text-blue-500"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="removeExercise('${ex.id}')" class="p-1 text-gray-400 hover:text-red-500 ml-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function moveExercise(index, direction) {
+            const arr = workoutData[currentTab];
+            if (index + direction < 0 || index + direction >= arr.length) return;
+            
+            const temp = arr[index];
+            arr[index] = arr[index + direction];
+            arr[index + direction] = temp;
+            
+            localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
+            renderEditList();
+            renderExercises(); // Atualiza a tela principal no fundo
+        }
+
+        function removeExercise(id) {
+            if(!confirm("Remover este exercício do treino?")) return;
+            workoutData[currentTab] = workoutData[currentTab].filter(ex => ex.id !== id);
+            localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
+            renderEditList();
+            renderExercises();
+        }
+
+        function openAddExercise() {
+            const name = prompt("Nome do exercício:");
+            if(!name) return;
+            const sets = prompt("Séries (ex: 3):", "3") || "3";
+            const reps = prompt("Repetições (ex: 12):", "12") || "12";
+            
+            workoutData[currentTab].push({
+                id: Math.random().toString(36).substr(2, 9),
+                name: name.toUpperCase(),
+                sets: sets,
+                reps: reps
+            });
+            
+            localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
+            renderEditList();
+            renderExercises();
+            showToast("Exercício adicionado!");
+        }
+
+        // --- 8. BACKUP (EXPORTAR / IMPORTAR) ---
+        function exportData() {
+            const dataToSave = {
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate
+            };
+            const blob = new Blob([JSON.stringify(dataToSave)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `backup_treinos_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Backup baixado com sucesso!");
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(data.workoutData) {
+                        localStorage.setItem('appWorkoutData', JSON.stringify(data.workoutData));
+                        localStorage.setItem('appCheckedState', JSON.stringify(data.checkedState || {}));
+                        localStorage.setItem('appWeights', JSON.stringify(data.exerciseWeights || {}));
+                        localStorage.setItem('workoutHistory', JSON.stringify(data.workoutHistory || []));
+                        if(data.startDate) localStorage.setItem('workoutStartDate', data.startDate);
+                        
+                        alert("Dados restaurados com sucesso! O aplicativo será recarregado.");
+                        location.reload();
+                    } else {
+                        alert("Arquivo inválido.");
+                    }
+                } catch(err) {
+                    alert("Erro ao ler o arquivo.");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = msg;
-            
             toast.classList.remove('opacity-0');
             toast.classList.add('opacity-100');
-            
             setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
             }, 3000);
         }
 
-        // Banner de instalação iOS
-        function checkInstallBanner() {
-            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-            const isStandalone = window.navigator.standalone === true;
-            if (isIOS && !isStandalone) {
-                document.getElementById('install-banner').classList.remove('hidden');
-            }
-        }
-
-        // Inicializa o app
-        init().then(() => checkInstallBanner());
+        // Start
+        init();
 
     </script>
 </body>
