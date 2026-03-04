@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Treino Cristal</title>
+    <!-- PWA iPhone -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Treino Cristal">
+    <meta name="theme-color" content="#2563EB">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Animação suave para o checkbox */
+        .checkbox-custom {
+            transition: all 0.2s ease-in-out;
+        }
+        .checkbox-custom.checked {
+            background-color: #10B981;
+            border-color: #10B981;
+        }
+        /* Esconder scrollbar na navegação de abas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased">
+
+    <!-- Container Principal simulando tela de celular -->
+    <div class="max-w-md mx-auto bg-white min-h-screen relative shadow-2xl flex flex-col">
+        
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-20">
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Meus Treinos</h1>
+                <button onclick="toggleHistory()" class="text-blue-100 hover:text-white transition">
+                    <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                </button>
+            </div>
+            <div class="flex justify-between items-center bg-blue-700/50 rounded-lg p-3">
+                <div>
+                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Jornada</p>
+                    <p class="font-bold text-lg" id="days-passed-display">0 Dias</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Hoje</p>
+                    <p class="font-bold text-sm" id="current-date-display"></p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navegação de Treinos (Abas) -->
+        <div class="px-2 pt-4 pb-2 border-b bg-white sticky top-[120px] z-10">
+            <div class="flex overflow-x-auto no-scrollbar space-x-2 pb-2" id="tabs-container">
+                <!-- Abas serão injetadas aqui pelo JS -->
+            </div>
+        </div>
+
+        <!-- Lista de Exercícios -->
+        <main class="flex-1 overflow-y-auto p-4 pb-24 bg-gray-50" id="exercises-container">
+            <!-- Exercícios serão injetados aqui -->
+        </main>
+
+        <!-- Botão Finalizar -->
+        <div class="fixed bottom-0 w-full max-w-md bg-white p-4 border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
+            <button onclick="finishWorkout()" class="w-full bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform active:scale-[0.98] flex justify-center items-center text-lg">
+                <i class="fa-solid fa-check-circle mr-2"></i> Finalizar Treino do Dia
+            </button>
+        </div>
+
+        <!-- Modal de Histórico (Oculto por padrão) -->
+        <div id="history-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-center items-end sm:items-center">
+            <div class="bg-white w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full sm:translate-y-0 duration-300" id="history-content">
+                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h2 class="text-xl font-bold"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Histórico de Treinos</h2>
+                    <button onclick="toggleHistory()" class="text-gray-500 hover:text-gray-800 p-2">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto pr-2" id="history-list">
+                    <!-- Histórico será injetado aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Banner instalar como App (iOS) -->
+        <div id="install-banner" class="fixed top-0 left-0 right-0 z-50 max-w-md mx-auto hidden">
+            <div class="bg-blue-700 text-white px-4 py-3 flex items-center justify-between text-sm shadow-lg">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen text-lg"></i>
+                    <div>
+                        <p class="font-bold leading-tight">Instalar como App</p>
+                        <p class="text-blue-200 text-xs">Toque em <i class="fa-solid fa-arrow-up-from-bracket mx-1"></i> depois "Tela de Início"</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('install-banner').classList.add('hidden')" class="text-blue-200 hover:text-white pl-3">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Alerta de Sucesso (Toast) -->
+        <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 flex items-center">
+            <i class="fa-solid fa-circle-check text-green-400 mr-2 text-xl"></i>
+            <span id="toast-message" class="font-medium">Treino salvo!</span>
+        </div>
+
+    </div>
+
+    <script>
+        // ── IndexedDB helper ──────────────────────────────────────────────
+        const DB_NAME = 'TreinoCristalDB';
+        const DB_VERSION = 1;
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = e => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains('store')) {
+                        d.createObjectStore('store');
+                    }
+                };
+                req.onsuccess = e => { db = e.target.result; resolve(db); };
+                req.onerror   = e => reject(e);
+            });
+        }
+
+        function dbGet(key) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('store', 'readonly');
+                const req = tx.objectStore('store').get(key);
+                req.onsuccess = () => resolve(req.result ?? null);
+                req.onerror   = e => reject(e);
+            });
+        }
+
+        function dbSet(key, value) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('store', 'readwrite');
+                const req = tx.objectStore('store').put(value, key);
+                req.onsuccess = () => resolve();
+                req.onerror   = e => reject(e);
+            });
+        }
+        // ─────────────────────────────────────────────────────────────────
+
+        // 1. DADOS DOS TREINOS (Extraídos das imagens)
+        const workoutData = {
+            'Quadríceps': [
+                { name: 'AGACHAMENTO CORPORAL', sets: '3', reps: '12' },
+                { name: 'CADEIRA EXTENSORA', sets: '3', reps: '12' },
+                { name: 'LEG PRESS 45', sets: '3', reps: '12' },
+                { name: 'CADEIRA ADUTORA', sets: '3', reps: '12' },
+                { name: 'PANTURRILHA SENTADA', sets: '3', reps: '12' },
+                { name: 'ABD INFRA', sets: '3', reps: '10' },
+                { name: 'OBLÍQUO ANILHA', sets: '3', reps: '10' }
+            ],
+            'Peito e Bíceps': [
+                { name: 'SUPINO INCLINADO', sets: '3', reps: '12' },
+                { name: 'SUPINO RETO MAQUINA', sets: '3', reps: '12' },
+                { name: 'PECK DECK', sets: '3', reps: '12' },
+                { name: 'ROSCA 90º', sets: '3', reps: '12' },
+                { name: 'ROSCA MARTELO', sets: '3', reps: '12' },
+                { name: 'ROSCA DIRETA', sets: '3', reps: '12' },
+                { name: 'ABD REMADOR', sets: '3', reps: '12' },
+                { name: 'CARDIO', sets: '-', reps: '-' }
+            ],
+            'Posterior e Glút': [
+                { name: 'CADEIRA FLEXORA', sets: '3', reps: '12' },
+                { name: 'MESA FLEXORA', sets: '3', reps: '12' },
+                { name: 'STIFF', sets: '3', reps: '15' },
+                { name: 'CADEIRA ABDUTORA', sets: '3', reps: '8-12' },
+                { name: 'ELEVAÇÃO PÉLVICA', sets: '3', reps: '12' },
+                { name: 'GLÚTEO NA MÁQUINA', sets: '3', reps: '15' },
+                { name: 'ABD MÁQUINA', sets: '3', reps: '15' }
+            ],
+            'Costas e Tríceps': [
+                { name: 'PULLEY FRENTE', sets: '3', reps: '12' },
+                { name: 'REMADA CURVADA', sets: '3', reps: '12' },
+                { name: 'CRUCIFIXO INVERSO', sets: '3', reps: '15' },
+                { name: 'TRÍCEPS FRANCÊS', sets: '3', reps: '12' },
+                { name: 'TRÍCEPS PULLEY', sets: '3', reps: '12' },
+                { name: 'DESENVOLVIMENTO MÁQUINA', sets: '3', reps: '12' },
+                { name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
+                { name: 'CARDIO', sets: '-', reps: '-' }
+            ],
+            'FULL BODY': [
+                { name: 'SUPINO INCLINADO', sets: '3', reps: '15' },
+                { name: 'PULLEY FRENTE', sets: '3', reps: '15' },
+                { name: 'CADEIRA EXTENSORA', sets: '3', reps: '15' },
+                { name: 'MESA FLEXORA', sets: '3', reps: '12' },
+                { name: 'ROSCA ALTERNADA', sets: '3', reps: '15' },
+                { name: 'TRÍCEPS MÁQUINA', sets: '3', reps: '15' },
+                { name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
+                { name: 'ABD SUPRA', sets: '3', reps: '15' }
+            ]
+        };
+
+        const tabs = Object.keys(workoutData);
+        let currentTab = tabs[0];
+
+        // 2. STATE (carregado do IndexedDB ao iniciar)
+        let checkedState = {};
+        let workoutHistory = [];
+        let startDate = null;
+
+        // 3. FUNÇÕES DE RENDERIZAÇÃO
+        async function init() {
+            await openDB();
+
+            checkedState  = (await dbGet('workoutCheckedState')) || {};
+            workoutHistory = (await dbGet('workoutHistory'))     || [];
+            startDate      = await dbGet('workoutStartDate');
+
+            if (!startDate) {
+                startDate = new Date().toISOString();
+                await dbSet('workoutStartDate', startDate);
+            }
+
+            updateHeaderDates();
+            renderTabs();
+            renderExercises();
+            renderHistory();
+            setInterval(updateHeaderDates, 60000);
+        }
+
+        function updateHeaderDates() {
+            // Exibir data atual
+            const now = new Date();
+            const options = { weekday: 'short', day: '2-digit', month: 'short' };
+            document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', options).toUpperCase();
+
+            // Calcular dias passados
+            const start = new Date(startDate);
+            // Zera as horas para calcular apenas a diferença de dias calendário
+            start.setHours(0,0,0,0);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const diffTime = Math.abs(today - start);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('days-passed-display').innerText = diffDays === 1 ? '1 Dia' : `${diffDays} Dias`;
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabs-container');
+            container.innerHTML = '';
+
+            tabs.forEach(tab => {
+                const isActive = tab === currentTab;
+                const btn = document.createElement('button');
+                btn.className = `flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-in-out ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+                btn.innerText = tab;
+                btn.onclick = () => {
+                    currentTab = tab;
+                    renderTabs();
+                    renderExercises();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderExercises() {
+            const container = document.getElementById('exercises-container');
+            container.innerHTML = '';
+            
+            const exercises = workoutData[currentTab];
+            
+            // Animação de entrada
+            container.style.opacity = 0;
+            
+            exercises.forEach((ex, index) => {
+                const isChecked = checkedState[currentTab] && checkedState[currentTab].includes(index);
+                
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between transition-all duration-200 cursor-pointer active:scale-[0.98] ${isChecked ? 'opacity-70' : ''}`;
+                // Faz o card inteiro ser clicável
+                card.onclick = () => toggleExercise(index);
+
+                card.innerHTML = `
+                    <div class="flex-1 pr-4">
+                        <h3 class="font-bold text-gray-800 ${isChecked ? 'line-through text-gray-400' : ''} text-[15px]">${ex.name}</h3>
+                        <p class="text-sm text-gray-500 mt-1 font-medium">
+                            <i class="fa-solid fa-repeat text-blue-400 mr-1 text-xs"></i> 
+                            Séries: <span class="text-gray-700">${ex.sets}</span> | Repetições: <span class="text-gray-700">${ex.reps}</span>
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center checkbox-custom ${isChecked ? 'checked border-green-500 bg-green-500' : 'border-gray-300 bg-white'}">
+                            <i class="fa-solid fa-check text-white text-sm ${isChecked ? 'block' : 'hidden'}"></i>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Fade in
+            setTimeout(() => {
+                container.style.transition = 'opacity 0.3s';
+                container.style.opacity = 1;
+            }, 50);
+        }
+
+        async function toggleExercise(index) {
+            if (!checkedState[currentTab]) {
+                checkedState[currentTab] = [];
+            }
+            
+            const idx = checkedState[currentTab].indexOf(index);
+            if (idx > -1) {
+                checkedState[currentTab].splice(idx, 1); // Desmarca
+            } else {
+                checkedState[currentTab].push(index); // Marca
+            }
+            
+            // Salva no IndexedDB
+            await dbSet('workoutCheckedState', checkedState);
+            
+            // Re-renderiza a lista para atualizar a UI
+            renderExercises();
+        }
+
+        // 4. LÓGICA DE FINALIZAR TREINO
+        async function finishWorkout() {
+            // Verifica se pelo menos 1 exercício foi feito na aba atual
+            const doneCount = (checkedState[currentTab] || []).length;
+            const totalCount = workoutData[currentTab].length;
+
+            if (doneCount === 0) {
+                alert("Você não marcou nenhum exercício neste treino ainda!");
+                return;
+            }
+
+            if (doneCount < totalCount) {
+                const confirmar = confirm(`Você completou ${doneCount} de ${totalCount} exercícios. Deseja finalizar o treino mesmo assim?`);
+                if (!confirmar) return;
+            }
+
+            // Registra no histórico
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR');
+            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' });
+
+            workoutHistory.unshift({
+                id: Date.now(),
+                tabName: currentTab,
+                date: dateStr,
+                time: timeStr,
+                exercisesDone: doneCount,
+                totalExercises: totalCount
+            });
+
+            // Limita o histórico aos últimos 50 treinos para não pesar
+            if(workoutHistory.length > 50) workoutHistory.pop();
+
+            await dbSet('workoutHistory', workoutHistory);
+
+            // Limpa os checkboxes APENAS da aba atual (pois ele finalizou essa aba)
+            checkedState[currentTab] = [];
+            await dbSet('workoutCheckedState', checkedState);
+
+            // Guarda o nome do treino finalizado para a mensagem
+            const finishedTab = currentTab;
+
+            // Avança para a próxima aba automaticamente
+            const currentIndex = tabs.indexOf(currentTab);
+            let nextIndex = currentIndex + 1;
+            // Se chegou no último treino da lista, volta para o primeiro
+            if (nextIndex >= tabs.length) {
+                nextIndex = 0;
+            }
+            currentTab = tabs[nextIndex];
+
+            // Atualiza interface
+            renderTabs();
+            renderExercises();
+            renderHistory();
+            
+            // Rola a tela para o topo
+            document.getElementById('exercises-container').scrollTop = 0;
+
+            // Mostra mensagem de sucesso
+            showToast(`Treino finalizado! Próximo: ${currentTab}`);
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            
+            if (workoutHistory.length === 0) {
+                list.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-gray-400 py-10 text-center">
+                        <i class="fa-solid fa-box-open text-4xl mb-3 opacity-50"></i>
+                        <p>Nenhum treino finalizado ainda.</p>
+                        <p class="text-sm">Seu histórico aparecerá aqui.</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            workoutHistory.forEach(item => {
+                const isComplete = item.exercisesDone === item.totalExercises;
+                const card = document.createElement('div');
+                card.className = 'bg-gray-50 border border-gray-100 p-4 rounded-lg mb-3 flex items-center justify-between';
+                card.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-gray-800 flex items-center">
+                            ${item.tabName}
+                            ${isComplete 
+                                ? '<i class="fa-solid fa-star text-yellow-400 text-xs ml-2" title="Treino 100% Completo"></i>' 
+                                : ''}
+                        </h4>
+                        <p class="text-xs text-gray-500 mt-1"><i class="fa-regular fa-calendar mr-1"></i> ${item.date} às ${item.time}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold">
+                            ${item.exercisesDone}/${item.totalExercises} exc.
+                        </span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // 5. UTILITÁRIOS (Modal, Toast)
+        function toggleHistory() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-content');
+            
+            if (modal.classList.contains('hidden')) {
+                // Abrir
+                modal.classList.remove('hidden');
+                // Pequeno delay para a transição do Tailwind funcionar
+                setTimeout(() => {
+                    content.classList.remove('translate-y-full');
+                }, 10);
+            } else {
+                // Fechar
+                content.classList.add('translate-y-full');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300); // Tempo da transição
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        // Banner de instalação iOS
+        function checkInstallBanner() {
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            const isStandalone = window.navigator.standalone === true;
+            if (isIOS && !isStandalone) {
+                document.getElementById('install-banner').classList.remove('hidden');
+            }
+        }
+
+        // Inicializa o app
+        init().then(() => checkInstallBanner());
+
+    </script>
+</body>
+</html>
