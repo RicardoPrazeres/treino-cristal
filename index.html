@@ -28,6 +28,7 @@
         body { -webkit-tap-highlight-color: transparent; transition: background-color 0.3s; }
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        #journey-progress { transition: width 1s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-darkbg text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
@@ -37,7 +38,7 @@
         <!-- Header -->
         <header class="bg-blue-600 dark:bg-blue-800 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-30 transition-colors duration-300">
             <div class="flex justify-between items-center mb-3">
-                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Treinos Ricardo </h1>
+                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Treinos Ricardo 💪🏽</h1>
                 <div class="flex space-x-4">
                     <button onclick="toggleTheme()" class="text-blue-100 hover:text-white transition">
                         <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
@@ -50,12 +51,17 @@
                     </button>
                 </div>
             </div>
-            <div class="flex justify-between items-center bg-blue-700/50 dark:bg-blue-900/50 rounded-lg p-3">
-                <div>
-                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Jornada</p>
-                    <p class="font-bold text-lg" id="days-passed-display">0 Dias</p>
+            
+            <!-- Quadro de Jornada (Modificado com barra de progresso) -->
+            <div class="flex justify-between items-center bg-blue-700/50 dark:bg-blue-900/50 rounded-lg p-3 relative overflow-hidden shadow-inner">
+                <!-- Barra de progresso de 3 meses -->
+                <div id="journey-progress" class="absolute left-0 bottom-0 h-1.5 bg-green-400" style="width: 0%;"></div>
+                
+                <div class="z-10 relative">
+                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold" id="journey-title">Meta (3 Meses)</p>
+                    <p class="font-bold text-lg" id="days-passed-display">Dia 0 / 90</p>
                 </div>
-                <div class="text-right">
+                <div class="text-right z-10 relative">
                     <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Hoje</p>
                     <p class="font-bold text-sm" id="current-date-display"></p>
                 </div>
@@ -97,11 +103,30 @@
             </button>
         </div>
 
+        <!-- Modal de Conclusão dos 3 Meses -->
+        <div id="completion-modal" class="fixed inset-0 bg-black/80 z-[70] hidden flex justify-center items-center p-4">
+            <div class="bg-white dark:bg-darkcard w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300" id="completion-content">
+                <div class="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-trophy text-4xl text-yellow-500 drop-shadow-md"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-800 dark:text-white mb-2">Meta Atingida!</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Você completou <strong>3 meses</strong> (ou mais) desta jornada de treinos. O ideal agora é trocar a sua ficha para garantir novos estímulos musculares.</p>
+                <div class="space-y-3">
+                    <button onclick="resetJourney()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition active:scale-[0.98] flex justify-center items-center">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Iniciar Nova Jornada (Zerar)
+                    </button>
+                    <button onclick="closeCompletionModal()" class="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 px-4 rounded-xl transition active:scale-[0.98]">
+                        Continuar mesmo assim
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal Histórico -->
         <div id="history-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
             <div class="bg-white dark:bg-darkcard w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300" id="history-content">
                 <div class="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
-                    <h2 class="text-xl font-bold dark:text-white"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Histórico</h2>
+                    <h2 class="text-xl font-bold dark:text-white"><i class="fa-solid fa-clock-rotate-left text-blue-500 mr-2"></i>Histórico</h2>
                     <button onclick="toggleHistory()" class="text-gray-500 dark:text-gray-400 p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
                 </div>
                 <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="history-list"></div>
@@ -205,7 +230,6 @@
         // --- 2. STATE MANAGEMENT ---
         let workoutData = JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData;
         
-        // Corrige dados antigos (adiciona IDs se não tiver)
         Object.keys(workoutData).forEach(tab => {
             workoutData[tab].forEach(ex => { if(!ex.id) ex.id = Math.random().toString(36).substr(2, 9); });
         });
@@ -214,10 +238,18 @@
         let tabs = Object.keys(workoutData);
         let currentTab = localStorage.getItem('currentTab') || tabs[0];
         
-        // Estado de exercícios checados baseado em IDs
         let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
-        // Pesos salvos (Key: ID do exercicio)
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
+        
+        // --- ATUALIZAÇÃO SOLICITADA: Limpar histórico e definir 2 dias passados ---
+        if (!localStorage.getItem('update_2days_clear_v1')) {
+            localStorage.setItem('workoutHistory', '[]'); // Limpa o histórico
+            let date2DaysAgo = new Date();
+            date2DaysAgo.setDate(date2DaysAgo.getDate() - 2);
+            localStorage.setItem('workoutStartDate', date2DaysAgo.toISOString()); // Volta 2 dias
+            localStorage.setItem('update_2days_clear_v1', 'true'); // Marca para não limpar de novo amanhã
+        }
+
         let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
         let startDate = localStorage.getItem('workoutStartDate');
         
@@ -258,15 +290,75 @@
             }
         }
 
+        // --- ATUALIZAÇÃO DO HEADER E META 3 MESES ---
         function updateHeaderDates() {
             const now = new Date();
             document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).toUpperCase();
 
             const start = new Date(startDate);
             start.setHours(0,0,0,0);
-            now.setHours(0,0,0,0);
-            const diffDays = Math.floor(Math.abs(now - start) / (1000 * 60 * 60 * 24));
-            document.getElementById('days-passed-display').innerText = diffDays === 1 ? '1 Dia' : `${diffDays} Dias`;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            // Calcula 3 meses (data final)
+            const endDate = new Date(start);
+            endDate.setMonth(endDate.getMonth() + 3);
+            
+            // Cálculos exatos em dias
+            const totalDays = Math.round((endDate - start) / (1000 * 60 * 60 * 24));
+            let passedDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+            
+            if (passedDays < 0) passedDays = 0;
+            
+            let remainingDays = totalDays - passedDays;
+            
+            // Barra de Progresso Visual
+            let progress = (passedDays / totalDays) * 100;
+            if (progress > 100) progress = 100;
+            
+            const progressElement = document.getElementById('journey-progress');
+            progressElement.style.width = `${progress}%`;
+            
+            // UI Textos
+            if (remainingDays > 0) {
+                document.getElementById('journey-title').innerText = "Meta (3 Meses)";
+                document.getElementById('days-passed-display').innerText = `Dia ${passedDays} / ${totalDays}`;
+                progressElement.classList.replace('bg-yellow-400', 'bg-green-400');
+            } else {
+                document.getElementById('journey-title').innerText = "Ciclo Concluído";
+                document.getElementById('days-passed-display').innerText = `Dia ${passedDays} (Bônus)`;
+                progressElement.classList.replace('bg-green-400', 'bg-yellow-400');
+                
+                checkJourneyCompletion();
+            }
+        }
+
+        function checkJourneyCompletion() {
+            const acknowledged = localStorage.getItem('workoutCycleAcknowledged');
+            if (!acknowledged) {
+                const modal = document.getElementById('completion-modal');
+                const content = document.getElementById('completion-content');
+                modal.classList.remove('hidden');
+                setTimeout(() => content.classList.remove('scale-95'), 10);
+            }
+        }
+
+        function closeCompletionModal() {
+            localStorage.setItem('workoutCycleAcknowledged', 'true');
+            const modal = document.getElementById('completion-modal');
+            modal.classList.add('hidden');
+        }
+
+        function resetJourney() {
+            localStorage.setItem('workoutStartDate', new Date().toISOString());
+            localStorage.removeItem('workoutCycleAcknowledged');
+            startDate = localStorage.getItem('workoutStartDate');
+            
+            const modal = document.getElementById('completion-modal');
+            modal.classList.add('hidden');
+            
+            updateHeaderDates();
+            showToast("Nova jornada de 3 meses iniciada!");
         }
 
         // --- 4. RENDERIZAÇÃO PRINCIPAL ---
@@ -342,7 +434,6 @@
                 checkedState[currentTab].splice(idx, 1);
             } else {
                 checkedState[currentTab].push(id);
-                // Apenas vibrar (se suportado) ao marcar um exercício como concluído
                 if (navigator.vibrate) navigator.vibrate(50);
             }
             
@@ -358,25 +449,22 @@
         // --- 5. CRONÔMETRO ---
         let timerInterval;
         let timeLeft = 0;
-        let endTime = 0; // Nova variável para guardar o tempo absoluto
+        let endTime = 0;
 
         function startTimer(seconds) {
             clearInterval(timerInterval);
             timeLeft = seconds;
-            // Registra no relógio o momento exato em que o timer deve acabar
             endTime = Date.now() + (seconds * 1000);
             
             document.getElementById('timer-bar').classList.remove('hidden');
             document.getElementById('timer-bar').classList.add('flex');
             updateTimerDisplay();
             
-            // O intervalo roda a cada 500ms para pegar rápido quando a tela ligar
             timerInterval = setInterval(() => {
-                // Em vez de subtrair 1, ele calcula a diferença do relógio do sistema
                 timeLeft = Math.round((endTime - Date.now()) / 1000);
                 
                 if (timeLeft <= 0) {
-                    timeLeft = 0; // Impede que fique com número negativo no display
+                    timeLeft = 0;
                     updateTimerDisplay();
                     stopTimer();
                     playBeep();
@@ -396,7 +484,6 @@
         }
 
         function addTimerTime(seconds) {
-            // Adiciona tempo empurrando o limite de endTime para frente
             endTime += (seconds * 1000);
             timeLeft = Math.round((endTime - Date.now()) / 1000);
             updateTimerDisplay();
@@ -502,7 +589,7 @@
             });
         }
 
-        // --- 7. CONFIGURAÇÕES E EDIÇÃO (NOVO) ---
+        // --- 7. CONFIGURAÇÕES E EDIÇÃO ---
         function toggleHistory() {
             toggleModal('history-modal', 'history-content');
         }
@@ -556,7 +643,7 @@
             
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
             renderEditList();
-            renderExercises(); // Atualiza a tela principal no fundo
+            renderExercises(); 
         }
 
         function removeExercise(id) {
@@ -598,7 +685,6 @@
                 return;
             }
 
-            // Reconstruir o objeto para manter a ordem das abas exatamente igual
             const newWorkoutData = {};
             tabs.forEach(key => {
                 if (key === currentTab) {
@@ -611,7 +697,6 @@
             workoutData = newWorkoutData;
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
             
-            // Migrar os checks para o novo nome caso haja
             if (checkedState[currentTab]) {
                 checkedState[trimmedName] = checkedState[currentTab];
                 delete checkedState[currentTab];
@@ -631,7 +716,8 @@
         // --- 8. BACKUP (EXPORTAR / IMPORTAR) ---
         function exportData() {
             const dataToSave = {
-                workoutData, checkedState, exerciseWeights, workoutHistory, startDate
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
+                acknowledged: localStorage.getItem('workoutCycleAcknowledged')
             };
             const blob = new Blob([JSON.stringify(dataToSave)], {type: "application/json"});
             const url = URL.createObjectURL(blob);
@@ -658,6 +744,7 @@
                         localStorage.setItem('appWeights', JSON.stringify(data.exerciseWeights || {}));
                         localStorage.setItem('workoutHistory', JSON.stringify(data.workoutHistory || []));
                         if(data.startDate) localStorage.setItem('workoutStartDate', data.startDate);
+                        if(data.acknowledged) localStorage.setItem('workoutCycleAcknowledged', data.acknowledged);
                         
                         alert("Dados restaurados com sucesso! O aplicativo será recarregado.");
                         location.reload();
