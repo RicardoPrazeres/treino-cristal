@@ -36,6 +36,10 @@
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
         .checkbox-custom { transition: all 0.2s ease-in-out; }
         .checkbox-custom.checked { background-color: #10B981; border-color: #10B981; }
@@ -59,13 +63,32 @@
 </head>
 <body class="bg-gray-100 dark:bg-darkbg text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
 
-    <div class="max-w-md mx-auto bg-white dark:bg-darkbg min-h-screen relative shadow-2xl flex flex-col">
+    <!-- Tela de Login -->
+    <div id="login-screen" class="fixed inset-0 z-[200] flex flex-col justify-center items-center p-8" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);">
+        <div class="text-center max-w-xs w-full">
+            <div class="w-28 h-28 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl overflow-hidden">
+                <img src="icons/icon-192.png" alt="Cristal Academia" class="w-full h-full object-cover">
+            </div>
+            <h1 class="text-3xl font-black text-white mb-1 tracking-tight">Treinos Cristal</h1>
+            <p class="text-blue-200 mb-2 text-base font-medium">💪🏽 Academia Cristal</p>
+            <p class="text-blue-300 text-sm mb-8">Faça login para sincronizar seus treinos na nuvem</p>
+            <button id="google-login-btn" onclick="loginWithGoogle()"
+                class="w-full bg-white text-gray-700 font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center space-x-3 hover:bg-gray-50 active:scale-95 transition-all duration-150 text-base">
+                <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.4l-6.5-5.5C29.5 34.9 26.9 36 24 36c-5.3 0-9.7-3.3-11.3-8H6.1C9.4 35.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.5 5.5C41.6 35.7 44 30.3 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+                <span>Entrar com Google</span>
+            </button>
+            <p class="text-blue-400 text-xs mt-5">Seus dados ficam seguros e sincronizados em qualquer dispositivo</p>
+        </div>
+    </div>
+
+    <div id="app-wrapper" class="max-w-md mx-auto bg-white dark:bg-darkbg min-h-screen relative shadow-2xl flex flex-col hidden">
         
         <!-- Header -->
         <header class="bg-blue-600 dark:bg-blue-800 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-30 transition-colors duration-300">
             <div class="flex justify-between items-center mb-3">
                 <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Treinos Ricardo 💪🏽</h1>
-                <div class="flex space-x-4">
+                <div class="flex items-center space-x-3">
+                    <img id="user-avatar" src="" alt="" class="w-8 h-8 rounded-full border-2 border-blue-300 hidden object-cover">
                     <button onclick="toggleTheme()" class="text-blue-100 hover:text-white transition">
                         <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
                     </button>
@@ -74,6 +97,9 @@
                     </button>
                     <button onclick="toggleSettings()" class="text-blue-100 hover:text-white transition">
                         <i class="fa-solid fa-gear text-xl"></i>
+                    </button>
+                    <button onclick="logout()" class="text-blue-100 hover:text-white transition" title="Sair da conta">
+                        <i class="fa-solid fa-right-from-bracket text-xl"></i>
                     </button>
                 </div>
             </div>
@@ -201,6 +227,79 @@
     </div>
 
     <script>
+        // --- FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkp-fVTLaj9AjHPDlDkJbU0pgM9Lfiugg",
+            authDomain: "treinos-na-cristal.firebaseapp.com",
+            projectId: "treinos-na-cristal",
+            storageBucket: "treinos-na-cristal.firebasestorage.app",
+            messagingSenderId: "621179540784",
+            appId: "1:621179540784:web:227f90e9921e88d33a64f5",
+            measurementId: "G-Q3ZJYO7XB1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        let currentUser = null;
+
+        function loginWithGoogle() {
+            const btn = document.getElementById('google-login-btn');
+            if (btn) btn.disabled = true;
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(err => {
+                console.error('[Firebase] Erro no login:', err);
+                if (btn) btn.disabled = false;
+                alert('Erro ao fazer login. Verifique sua conexão e tente novamente.');
+            });
+        }
+
+        function logout() {
+            if (!confirm('Deseja sair da conta?')) return;
+            auth.signOut();
+        }
+
+        async function loadFromFirestore(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).collection('data').doc('main').get();
+                if (doc.exists) {
+                    const d = doc.data();
+                    if (d.workoutData) { workoutData = d.workoutData; _origSetItem('appWorkoutData', JSON.stringify(d.workoutData)); }
+                    if (d.checkedState) { checkedState = d.checkedState; _origSetItem('appCheckedState', JSON.stringify(d.checkedState)); }
+                    if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
+                    if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
+                    if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
+                    if (d.theme) _origSetItem('theme', d.theme);
+                    if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
+                    tabs = Object.keys(workoutData);
+                    currentTab = localStorage.getItem('currentTab') || tabs[0];
+                }
+            } catch (e) {
+                console.warn('[Firebase] Erro ao carregar:', e);
+            }
+        }
+
+        function saveToFirestore() {
+            if (!currentUser) return;
+            db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
+                theme: localStorage.getItem('theme') || 'light',
+                cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(e => console.warn('[Firebase] Erro ao salvar:', e));
+        }
+
+        // Auto-sync: intercept localStorage writes
+        const _origSetItem = localStorage.setItem.bind(localStorage);
+        const _syncKeys = ['appWorkoutData','appCheckedState','appWeights','workoutHistory','workoutStartDate','workoutCycleAcknowledged','theme'];
+        let _syncTimer = null;
+        localStorage.setItem = function(key, value) {
+            _origSetItem(key, value);
+            if (currentUser && _syncKeys.includes(key)) {
+                clearTimeout(_syncTimer);
+                _syncTimer = setTimeout(saveToFirestore, 1500);
+            }
+        };
+
         // --- 1. DADOS PADRÃO ---
         const defaultWorkoutData = {
             'Quadríceps': [
@@ -759,19 +858,29 @@
         function importData(event) {
             const file = event.target.files[0];
             if(!file) return;
-            
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
                     if(data.workoutData) {
-                        localStorage.setItem('appWorkoutData', JSON.stringify(data.workoutData));
-                        localStorage.setItem('appCheckedState', JSON.stringify(data.checkedState || {}));
-                        localStorage.setItem('appWeights', JSON.stringify(data.exerciseWeights || {}));
-                        localStorage.setItem('workoutHistory', JSON.stringify(data.workoutHistory || []));
-                        if(data.startDate) localStorage.setItem('workoutStartDate', data.startDate);
-                        if(data.acknowledged) localStorage.setItem('workoutCycleAcknowledged', data.acknowledged);
-                        
+                        // Update in-memory state
+                        workoutData = data.workoutData;
+                        checkedState = data.checkedState || {};
+                        exerciseWeights = data.exerciseWeights || {};
+                        workoutHistory = data.workoutHistory || [];
+                        if(data.startDate) startDate = data.startDate;
+
+                        // Save to localStorage (bypass auto-sync interceptor)
+                        _origSetItem('appWorkoutData', JSON.stringify(workoutData));
+                        _origSetItem('appCheckedState', JSON.stringify(checkedState));
+                        _origSetItem('appWeights', JSON.stringify(exerciseWeights));
+                        _origSetItem('workoutHistory', JSON.stringify(workoutHistory));
+                        if(data.startDate) _origSetItem('workoutStartDate', data.startDate);
+                        if(data.acknowledged) _origSetItem('workoutCycleAcknowledged', data.acknowledged);
+
+                        // Sync to Firestore then reload
+                        saveToFirestore();
                         alert("Dados restaurados com sucesso! O aplicativo será recarregado.");
                         location.reload();
                     } else {
@@ -795,8 +904,25 @@
             }, 3000);
         }
 
-        // Start
-        init();
+        // --- AUTH: Observar estado de login ---
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                const avatar = document.getElementById('user-avatar');
+                if (avatar && user.photoURL) {
+                    avatar.src = user.photoURL;
+                    avatar.classList.remove('hidden');
+                }
+                await loadFromFirestore(user.uid);
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('hidden');
+                init();
+            } else {
+                currentUser = null;
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-wrapper').classList.add('hidden');
+            }
+        });
 
         // --- PWA: Registrar Service Worker ---
         if ('serviceWorker' in navigator) {

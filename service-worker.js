@@ -1,5 +1,5 @@
 // Service Worker - Treinos Ricardo
-const CACHE_NAME = 'treinos-ricardo-v1';
+const CACHE_NAME = 'treinos-ricardo-v2';
 
 // Todos os recursos necessários para o app funcionar offline
 const ASSETS_TO_CACHE = [
@@ -58,6 +58,10 @@ self.addEventListener('fetch', (event) => {
 
   // Ignora extensões do Chrome e outras URLs internas
   if (event.request.url.startsWith('chrome-extension://')) return;
+
+  // Firebase / Google Auth: sempre vai para a rede (nunca cacheia)
+  const bypassDomains = ['firestore.googleapis.com', 'identitytoolkit.googleapis.com', 'securetoken.googleapis.com', 'firebaseapp.com', 'googleapis.com'];
+  if (bypassDomains.some(d => event.request.url.includes(d))) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
