@@ -267,14 +267,14 @@
                 const doc = await db.collection('users').doc(userId).collection('data').doc('main').get();
                 if (doc.exists) {
                     const d = doc.data();
-                    if (d.workoutData) { workoutData = d.workoutData; _origSetItem('appWorkoutData', JSON.stringify(d.workoutData)); }
+                    if (d.workoutData) { workoutData = sortTabs(d.workoutData); _origSetItem('appWorkoutData', JSON.stringify(workoutData)); }
                     if (d.checkedState) { checkedState = d.checkedState; _origSetItem('appCheckedState', JSON.stringify(d.checkedState)); }
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
                     if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
-                    tabs = Object.keys(workoutData);
+                    tabs = Object.keys(workoutData); // ordem já garantida pelo sortTabs
                     // SEMPRE usa o currentTab do Firebase — fonte única da verdade
                     // Ignora localStorage local para garantir consistência entre dispositivos
                     const savedTab = d.currentTab;
@@ -362,7 +362,18 @@
         };
 
         // --- 2. STATE MANAGEMENT ---
-        let workoutData = JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData;
+        // Ordem fixa dos treinos — sempre respeitada independente do Firebase ou localStorage
+        const TAB_ORDER = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glút', 'Costas e Tríceps', 'FULL BODY'];
+
+        function sortTabs(data) {
+            const sorted = {};
+            TAB_ORDER.forEach(key => { if (data[key]) sorted[key] = data[key]; });
+            // Adiciona tabs extras que não estejam no TAB_ORDER (caso o usuário crie novos)
+            Object.keys(data).forEach(key => { if (!sorted[key]) sorted[key] = data[key]; });
+            return sorted;
+        }
+
+        let workoutData = sortTabs(JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData);
         
         Object.keys(workoutData).forEach(tab => {
             workoutData[tab].forEach(ex => { if(!ex.id) ex.id = Math.random().toString(36).substr(2, 9); });
