@@ -122,7 +122,7 @@
 
         <!-- Navegação de Treinos -->
         <div class="px-2 pt-4 pb-2 border-b dark:border-gray-800 bg-white dark:bg-darkbg sticky top-[120px] z-20 transition-colors duration-300">
-            <div class="flex overflow-x-auto no-scrollbar space-x-2 pb-2" id="tabs-container"></div>
+            <div class="grid grid-cols-5 gap-1" id="tabs-container"></div>
         </div>
 
         <!-- Lista de Exercícios -->
@@ -274,11 +274,12 @@
                     if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
-                    if (d.currentTab) { _origSetItem('currentTab', d.currentTab); }
                     tabs = Object.keys(workoutData);
-                    // Prioriza o currentTab vindo do Firebase (sincronizado entre dispositivos)
-                    const savedTab = d.currentTab || localStorage.getItem('currentTab');
+                    // SEMPRE usa o currentTab do Firebase — fonte única da verdade
+                    // Ignora localStorage local para garantir consistência entre dispositivos
+                    const savedTab = d.currentTab;
                     currentTab = (savedTab && workoutData[savedTab]) ? savedTab : tabs[0];
+                    _origSetItem('currentTab', currentTab);
                 }
             } catch (e) {
                 console.warn('[Firebase] Erro ao carregar:', e);
@@ -369,7 +370,9 @@
         localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
 
         let tabs = Object.keys(workoutData);
-        let currentTab = localStorage.getItem('currentTab') || tabs[0];
+        // currentTab será definido corretamente após o Firebase carregar (em loadFromFirestore)
+        // Aqui apenas um valor temporário para não quebrar antes do login
+        let currentTab = tabs[0];
         
         let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
@@ -496,8 +499,8 @@
         }
 
         // --- 4. RENDERIZAÇÃO PRINCIPAL ---
-        // nextTab = o treino que o app vai fazer na próxima sessão (salvo no localStorage como currentTab)
-        let nextTab = localStorage.getItem('currentTab') || tabs[0];
+        // nextTab espelha o currentTab — definido após Firebase carregar
+        let nextTab = currentTab;
 
         function renderTabs() {
             const container = document.getElementById('tabs-container');
@@ -507,27 +510,27 @@
                 const isSelected = tab === currentTab;
                 const btn = document.createElement('button');
 
-                let cls = 'flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-in-out ';
+                let cls = 'px-1 py-2 rounded-xl text-[11px] font-semibold transition-colors duration-200 ease-in-out text-center leading-tight ';
 
                 if (isSelected && isNext) {
                     // Selecionado E é o próximo: verde vibrante
-                    cls += 'bg-green-500 text-white shadow-md ring-2 ring-green-300';
+                    cls += 'bg-green-500 text-white shadow-md ring-2 ring-green-300 w-full';
                 } else if (isSelected && !isNext) {
                     // Selecionado mas não é o próximo: azul (visualizando outro treino)
-                    cls += 'bg-blue-600 text-white shadow-md';
+                    cls += 'bg-blue-600 text-white shadow-md w-full';
                 } else if (isNext) {
                     // Próximo mas não selecionado: verde mais suave
-                    cls += 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 ring-2 ring-green-400 hover:bg-green-200 dark:hover:bg-green-800/50';
+                    cls += 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 ring-2 ring-green-400 hover:bg-green-200 dark:hover:bg-green-800/50 w-full';
                 } else {
                     // Outros treinos: laranja
-                    cls += 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-800/40';
+                    cls += 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-800/40 w-full';
                 }
 
                 btn.className = cls;
 
                 // Ícone de "próximo" para o tab que vem a seguir
                 if (isNext) {
-                    btn.innerHTML = `<i class="fa-solid fa-play text-[10px] mr-1 opacity-80"></i>${tab}`;
+                    btn.innerHTML = `<i class="fa-solid fa-play text-[10px] block mb-0.5 opacity-80"></i>${tab}`;
                 } else {
                     btn.innerText = tab;
                 }
