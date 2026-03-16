@@ -274,8 +274,11 @@
                     if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
+                    if (d.currentTab) { _origSetItem('currentTab', d.currentTab); }
                     tabs = Object.keys(workoutData);
-                    currentTab = localStorage.getItem('currentTab') || tabs[0];
+                    // Prioriza o currentTab vindo do Firebase (sincronizado entre dispositivos)
+                    const savedTab = d.currentTab || localStorage.getItem('currentTab');
+                    currentTab = (savedTab && workoutData[savedTab]) ? savedTab : tabs[0];
                 }
             } catch (e) {
                 console.warn('[Firebase] Erro ao carregar:', e);
@@ -286,6 +289,7 @@
             if (!currentUser) return;
             db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
                 workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
+                currentTab: currentTab,
                 theme: localStorage.getItem('theme') || 'light',
                 cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -294,7 +298,7 @@
 
         // Auto-sync: intercept localStorage writes
         const _origSetItem = localStorage.setItem.bind(localStorage);
-        const _syncKeys = ['appWorkoutData','appCheckedState','appWeights','workoutHistory','workoutStartDate','workoutCycleAcknowledged','theme'];
+        const _syncKeys = ['appWorkoutData','appCheckedState','appWeights','workoutHistory','workoutStartDate','workoutCycleAcknowledged','theme','currentTab'];
         let _syncTimer = null;
         localStorage.setItem = function(key, value) {
             _origSetItem(key, value);
