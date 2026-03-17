@@ -275,11 +275,12 @@
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
                     tabs = Object.keys(workoutData); // ordem já garantida pelo sortTabs
-                    // SEMPRE usa o currentTab do Firebase — fonte única da verdade
-                    // Ignora localStorage local para garantir consistência entre dispositivos
-                    const savedTab = d.currentTab;
-                    currentTab = (savedTab && workoutData[savedTab]) ? savedTab : tabs[0];
-                    _origSetItem('currentTab', currentTab);
+                    // nextTab = próximo treino a fazer (fonte única: Firebase)
+                    // currentTab = apenas visualização, não persiste
+                    const savedNext = d.nextTab;
+                    nextTab = (savedNext && workoutData[savedNext]) ? savedNext : tabs[0];
+                    currentTab = nextTab; // ao abrir o app, mostra o próximo treino
+                    _origSetItem('nextTab', nextTab);
                 }
             } catch (e) {
                 console.warn('[Firebase] Erro ao carregar:', e);
@@ -290,7 +291,7 @@
             if (!currentUser) return;
             db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
                 workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
-                currentTab: currentTab,
+                nextTab: nextTab,
                 theme: localStorage.getItem('theme') || 'light',
                 cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -299,7 +300,7 @@
 
         // Auto-sync: intercept localStorage writes
         const _origSetItem = localStorage.setItem.bind(localStorage);
-        const _syncKeys = ['appWorkoutData','appCheckedState','appWeights','workoutHistory','workoutStartDate','workoutCycleAcknowledged','theme','currentTab'];
+        const _syncKeys = ['appWorkoutData','appCheckedState','appWeights','workoutHistory','workoutStartDate','workoutCycleAcknowledged','theme','nextTab'];
         let _syncTimer = null;
         localStorage.setItem = function(key, value) {
             _origSetItem(key, value);
@@ -409,7 +410,7 @@
         function init() {
             initTheme();
             updateHeaderDates();
-            nextTab = currentTab; // garante que o indicador bate com o tab atual ao iniciar
+            // nextTab já foi definido corretamente pelo loadFromFirestore
             renderTabs();
             renderExercises();
             renderHistory();
@@ -547,8 +548,7 @@
                 }
 
                 btn.onclick = () => {
-                    currentTab = tab;
-                    localStorage.setItem('currentTab', currentTab);
+                    currentTab = tab; // só navegação, não afeta o próximo treino
                     renderTabs();
                     renderExercises();
                 };
@@ -685,20 +685,23 @@
 
         // --- 6. LÓGICA DE FINALIZAR E DESCANSO ---
         function advanceTab() {
-            const currentIndex = tabs.indexOf(currentTab);
+            // Avança o PRÓXIMO TREINO com base no nextTab atual (não no que está sendo visualizado)
+            const currentIndex = tabs.indexOf(nextTab);
             let nextIndex = currentIndex + 1;
             if (nextIndex >= tabs.length) nextIndex = 0;
-            currentTab = tabs[nextIndex];
-            localStorage.setItem('currentTab', currentTab);
+            nextTab = tabs[nextIndex];
+            currentTab = nextTab; // após finalizar, mostra o próximo
+            localStorage.setItem('nextTab', nextTab);
         }
 
         function finishWorkout() {
-            const exercises = workoutData[currentTab] || [];
-            const doneCount = (checkedState[currentTab] || []).length;
+            // Finaliza o PRÓXIMO TREINO (nextTab), independente do que está sendo visualizado
+            const exercises = workoutData[nextTab] || [];
+            const doneCount = (checkedState[nextTab] || []).length;
             const totalCount = exercises.length;
 
             if (doneCount === 0) {
-                alert("Você não marcou nenhum exercício!");
+                alert("Você não marcou nenhum exercício! Marque os exercícios do treino destacado em verde.");
                 return;
             }
 
@@ -710,7 +713,7 @@
             workoutHistory.unshift({
                 id: Date.now(),
                 type: 'workout',
-                tabName: currentTab,
+                tabName: nextTab,
                 date: now.toLocaleDateString('pt-BR'),
                 time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }),
                 exercisesDone: doneCount,
@@ -720,13 +723,12 @@
             if(workoutHistory.length > 50) workoutHistory.pop();
             localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
 
-            checkedState[currentTab] = [];
+            checkedState[nextTab] = [];
             localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
             stopTimer();
             
-            const finished = currentTab;
-            advanceTab();
-            nextTab = currentTab; // atualiza o indicador de próximo treino
+            const finished = nextTab;
+            advanceTab(); // avança nextTab para o próximo
             
             renderTabs();
             renderExercises();
@@ -787,9 +789,9 @@
             localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
 
             // Volta o próximo treino para o que foi desfeito
-            currentTab = lastWorkout.tabName;
             nextTab = lastWorkout.tabName;
-            localStorage.setItem('currentTab', currentTab);
+            currentTab = nextTab;
+            localStorage.setItem('nextTab', nextTab);
 
             renderTabs();
             renderExercises();
@@ -913,7 +915,9 @@
 
             tabs = Object.keys(workoutData);
             currentTab = trimmedName;
-            localStorage.setItem('currentTab', currentTab);
+            // Se o treino renomeado era o próximo, atualiza nextTab também
+            if (nextTab === currentTab || nextTab === currentTab) nextTab = trimmedName;
+            localStorage.setItem('nextTab', nextTab);
             
             renderEditList();
             renderTabs();
