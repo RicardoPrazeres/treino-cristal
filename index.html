@@ -374,12 +374,9 @@
                     let dbCurr = d.currentTab;
                     if (dbCurr === 'Posterior e Glút') dbCurr = 'Posterior e Glúteos';
                     if (dbCurr === 'FULL BODY') dbCurr = 'FULLbody';
-                    if (dbCurr && tabs.includes(dbCurr)) {
-                        currentTab = dbCurr;
-                        _origSetItem('currentTab', currentTab);
-                    } else {
-                        currentTab = localStorage.getItem('currentTab') || nextTab;
-                    }
+                    // User explicitly requested to ALWAYS open at the current progression step (nextTab)
+                    currentTab = nextTab;
+                    _origSetItem('currentTab', currentTab);
                 }
             } catch (e) {
                 console.warn('[Firebase] Erro ao carregar:', e);
@@ -491,10 +488,9 @@
         if (nextTab === 'FULL BODY') nextTab = 'FULLbody';
         if (!nextTab || !tabs.includes(nextTab)) nextTab = tabs[0];
         
-        let currentTab = localStorage.getItem('currentTab');
-        if (currentTab === 'Posterior e Glút') currentTab = 'Posterior e Glúteos';
-        if (currentTab === 'FULL BODY') currentTab = 'FULLbody';
-        if (!currentTab || !tabs.includes(currentTab)) currentTab = nextTab;
+        // User explicitly requested to ALWAYS open at the current progression step (nextTab)
+        let currentTab = nextTab;
+        localStorage.setItem('currentTab', currentTab);
 
         let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
@@ -913,6 +909,9 @@
             renderHistory();
             document.getElementById('exercises-container').scrollTop = 0;
             showToast(`${finished} finalizado! Próximo: ${currentTab}`);
+
+            // Force immediate save to firestore in case user closes app right after
+            saveToFirestore();
         }
 
         function renderHistory() {
