@@ -355,6 +355,7 @@
                     if (d.checkedState) { checkedState = d.checkedState; _origSetItem('appCheckedState', JSON.stringify(d.checkedState)); }
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
+                    if (d.weightHistoryData) { weightHistoryData = d.weightHistoryData; _origSetItem('appWeightHistoryData', JSON.stringify(d.weightHistoryData)); }
                     if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
@@ -388,7 +389,7 @@
         function saveToFirestore() {
             if (!currentUser) return;
             db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
-                workoutData, checkedState, exerciseWeights, workoutHistory, startDate, currentTab, nextTab,
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate, currentTab, nextTab, weightHistoryData,
                 theme: localStorage.getItem('theme') || 'light',
                 cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -679,6 +680,7 @@
                 card.className = `bg-white dark:bg-darkcard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-3 transition-all duration-200 ${isChecked ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : ''}`;
 
                 card.innerHTML = `
+                card.innerHTML = `
                     <div class="flex items-center justify-between cursor-pointer" onclick="toggleExercise('${ex.id}')">
                         <div class="flex-1 pr-4">
                             <h3 class="font-bold text-gray-800 dark:text-gray-200 ${isChecked ? 'line-through text-gray-400 dark:text-gray-500' : ''} text-[15px]">${ex.name}</h3>
@@ -694,11 +696,16 @@
                         </div>
                     </div>
                     <!-- Separador Input de Carga -->
-                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center">
-                        <i class="fa-solid fa-weight-hanging text-gray-400 mr-2 text-sm"></i>
-                        <input type="text" placeholder="Carga (ex: 20kg)" value="${weight}" 
-                            onchange="saveWeight('${ex.id}', this.value)" 
-                            class="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1 w-full text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500">
+                    <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                        <div class="flex items-center flex-1">
+                            <i class="fa-solid fa-weight-hanging text-gray-400 mr-2 text-sm"></i>
+                            <input type="text" placeholder="Carga (ex: 20kg)" value="${weight}" 
+                                onchange="saveWeight('${ex.id}', this.value)" 
+                                class="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1 w-full max-w-[120px] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                        <button onclick="showWeightHistory('${ex.id}', '${ex.name}')" class="text-blue-500 hover:text-blue-600 dark:text-blue-400 px-2 py-1 flex items-center text-xs font-semibold bg-blue-50/50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-900 transition-colors">
+                            <i class="fa-solid fa-chart-line mr-1"></i> Histórico
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -710,12 +717,25 @@
             }, 50);
         }
 
+        // --- LÓGICA DE TEMPO E HISTÓRICO DE EXERCÍCIOS ---
+        let currentWorkoutStartTime = null;
+
         function toggleExercise(id) {
             if (!checkedState[currentTab]) checkedState[currentTab] = [];
+            
+            // Inicia o tracking de tempo do treino na primeira marcação
+            if (checkedState[currentTab].length === 0 && !currentWorkoutStartTime) {
+                currentWorkoutStartTime = Date.now();
+            }
+
             const idx = checkedState[currentTab].indexOf(id);
 
             if (idx > -1) {
                 checkedState[currentTab].splice(idx, 1);
+                // Se desmarcar tudo, cancela o inicio
+                if (checkedState[currentTab].length === 0) {
+                    currentWorkoutStartTime = null;
+                }
             } else {
                 checkedState[currentTab].push(id);
                 if (navigator.vibrate) navigator.vibrate(50);
@@ -725,9 +745,45 @@
             renderExercises();
         }
 
+        let weightHistoryData = JSON.parse(localStorage.getItem('appWeightHistoryData')) || {};
+
         function saveWeight(id, value) {
+            // Salva carga atual
             exerciseWeights[id] = value;
             localStorage.setItem('appWeights', JSON.stringify(exerciseWeights));
+            
+            // Salva no histórico da linha do tempo
+            if (value.trim() !== '') {
+                if (!weightHistoryData[id]) weightHistoryData[id] = [];
+                const today = new Date().toLocaleDateString('pt-BR');
+                
+                // Atualiza se for o mesmo dia, caso contrário adiciona nova entrada
+                const lastEntry = weightHistoryData[id].length > 0 ? weightHistoryData[id][weightHistoryData[id].length - 1] : null;
+                if (lastEntry && lastEntry.date === today) {
+                    lastEntry.weight = value;
+                } else {
+                    weightHistoryData[id].push({ date: today, weight: value });
+                }
+                
+                // Limita a 10 históricos por exercício para não pesar o db
+                if (weightHistoryData[id].length > 10) weightHistoryData[id].shift();
+                
+                localStorage.setItem('appWeightHistoryData', JSON.stringify(weightHistoryData));
+            }
+        }
+        
+        function showWeightHistory(id, name) {
+            const history = weightHistoryData[id] || [];
+            if (history.length === 0) {
+                alert(`Nenhum histórico de cargas para: ${name}. Comece a preencher a carga nos treinos para acompanhar a evolução.`);
+                return;
+            }
+            
+            let msg = `📈 Histórico de Cargas: ${name}\n\n`;
+            history.slice().reverse().forEach(entry => {
+                msg += `• ${entry.date}: ${entry.weight}\n`;
+            });
+            alert(msg);
         }
 
         // --- 5. CRONÔMETRO ---
@@ -818,6 +874,18 @@
                 if (!confirm(`Completou ${doneCount} de ${totalCount}. Finalizar mesmo assim?`)) return;
             }
 
+            // Calcula a duração do treino
+            let durationString = "0 min";
+            if (currentWorkoutStartTime) {
+                const durationMs = Date.now() - currentWorkoutStartTime;
+                const durationMinutes = Math.floor(durationMs / 60000);
+                if (durationMinutes > 0) durationString = `${durationMinutes} min`;
+                currentWorkoutStartTime = null;
+            }
+            
+            // Pergunta uma nota do treino (Opcional)
+            let notes = prompt("Treino Finalizado! 💪🏽 Quer adicionar alguma nota opcional? (Ex: Bati PR no agacho, ombro doendo) ou clique OK para pular:");
+            
             const now = new Date();
             workoutHistory.unshift({
                 id: Date.now(),
@@ -826,7 +894,9 @@
                 date: now.toLocaleDateString('pt-BR'),
                 time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 exercisesDone: doneCount,
-                totalExercises: totalCount
+                totalExercises: totalCount,
+                duration: durationString,
+                notes: notes ? notes.trim() : null
             });
 
             if (workoutHistory.length > 50) workoutHistory.pop();
@@ -863,19 +933,29 @@
                 const isComplete = !isRest && item.exercisesDone === item.totalExercises;
 
                 let html = `
-                    <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 p-3 rounded-lg flex justify-between items-center">
-                        <div>
-                            <h4 class="font-bold text-gray-800 dark:text-gray-200 flex items-center">
-                                ${isRest ? '<i class="fa-solid fa-bed text-blue-400 mr-2"></i>' : ''} ${item.tabName}
-                                ${isComplete ? '<i class="fa-solid fa-star text-yellow-500 text-xs ml-2"></i>' : ''}
-                            </h4>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">${item.date} às ${item.time}</p>
+                let html = `
+                    <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 p-3 rounded-lg flex flex-col justify-between items-start mb-2 relative">
+                        <div class="flex justify-between w-full items-center">
+                            <div>
+                                <h4 class="font-bold text-gray-800 dark:text-gray-200 flex items-center text-sm sm:text-base">
+                                    ${isRest ? '<i class="fa-solid fa-bed text-blue-400 mr-2"></i>' : ''} ${item.tabName}
+                                    ${isComplete ? '<i class="fa-solid fa-star text-yellow-500 text-xs ml-2"></i>' : ''}
+                                </h4>
+                                <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">${item.date} às ${item.time} ${item.duration && item.duration !== '0 min' ? ` • <i class="fa-regular fa-clock"></i> ${item.duration}` : ''}</p>
+                            </div>
+                            <div class="flex flex-col items-end shrink-0">
+                                ${!isRest ? `<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded font-bold ml-2">${item.exercisesDone}/${item.totalExercises}</span>` : ''}
+                            </div>
                         </div>`;
-
-                if (!isRest) {
-                    html += `<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded font-bold">${item.exercisesDone}/${item.totalExercises}</span>`;
+                
+                if (item.notes) {
+                    html += `
+                        <div class="mt-2 text-xs bg-white dark:bg-gray-900 p-2 rounded border-l-2 border-indigo-400 text-gray-600 dark:text-gray-300 w-full italic">
+                            <i class="fa-solid fa-quote-left text-gray-400 mr-1 opacity-50"></i> ${item.notes}
+                        </div>
+                    `;
                 }
-
+                
                 html += `</div>`;
                 list.insertAdjacentHTML('beforeend', html);
             });
