@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="light">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#2563eb">
-    <title>Treinos Ricardo 💪🏽</title>
+    <title>Treinos💪🏽</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -41,32 +43,61 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
-        .checkbox-custom { transition: all 0.2s ease-in-out; }
-        .checkbox-custom.checked { background-color: #10B981; border-color: #10B981; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        body { -webkit-tap-highlight-color: transparent; transition: background-color 0.3s; }
-        input[type="number"]::-webkit-inner-spin-button, 
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        #journey-progress { transition: width 1s ease-in-out; }
+        .checkbox-custom {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .checkbox-custom.checked {
+            background-color: #10B981;
+            border-color: #10B981;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #journey-progress {
+            transition: width 1s ease-in-out;
+        }
 
         /* iPhone: ocupa área segura (notch/ilha dinâmica/barra home) */
         body {
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
+
         /* Footer fixo respeita a barra home do iPhone */
         .fixed.bottom-0 {
             padding-bottom: calc(1rem + env(safe-area-inset-bottom));
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-darkbg text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
+
+<body
+    class="bg-gray-100 dark:bg-darkbg text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
 
     <!-- Tela de Login -->
-    <div id="login-screen" class="fixed inset-0 z-[200] flex flex-col justify-center items-center p-8" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);">
+    <div id="login-screen" class="fixed inset-0 z-[200] flex flex-col justify-center items-center p-8"
+        style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);">
         <div class="text-center max-w-xs w-full">
-            <div class="w-28 h-28 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl overflow-hidden">
+            <div
+                class="w-28 h-28 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl overflow-hidden">
                 <img src="icons/icon-192.png" alt="Cristal Academia" class="w-full h-full object-cover">
             </div>
             <h1 class="text-3xl font-black text-white mb-1 tracking-tight">Treinos Cristal</h1>
@@ -74,21 +105,33 @@
             <p class="text-blue-300 text-sm mb-8">Faça login para sincronizar seus treinos na nuvem</p>
             <button id="google-login-btn" onclick="loginWithGoogle()"
                 class="w-full bg-white text-gray-700 font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center space-x-3 hover:bg-gray-50 active:scale-95 transition-all duration-150 text-base">
-                <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.4l-6.5-5.5C29.5 34.9 26.9 36 24 36c-5.3 0-9.7-3.3-11.3-8H6.1C9.4 35.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.5 5.5C41.6 35.7 44 30.3 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+                <svg width="22" height="22" viewBox="0 0 48 48">
+                    <path fill="#FFC107"
+                        d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
+                    <path fill="#FF3D00"
+                        d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                    <path fill="#4CAF50"
+                        d="M24 44c5.5 0 10.4-2.1 14.1-5.4l-6.5-5.5C29.5 34.9 26.9 36 24 36c-5.3 0-9.7-3.3-11.3-8H6.1C9.4 35.6 16.2 44 24 44z" />
+                    <path fill="#1976D2"
+                        d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.5 5.5C41.6 35.7 44 30.3 44 24c0-1.3-.1-2.6-.4-3.9z" />
+                </svg>
                 <span>Entrar com Google</span>
             </button>
             <p class="text-blue-400 text-xs mt-5">Seus dados ficam seguros e sincronizados em qualquer dispositivo</p>
         </div>
     </div>
 
-    <div id="app-wrapper" class="max-w-md mx-auto bg-white dark:bg-darkbg min-h-screen relative shadow-2xl flex flex-col hidden">
-        
+    <div id="app-wrapper"
+        class="max-w-md mx-auto bg-white dark:bg-darkbg min-h-screen relative shadow-2xl flex flex-col hidden">
+
         <!-- Header -->
-        <header class="bg-blue-600 dark:bg-blue-800 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-30 transition-colors duration-300">
+        <header
+            class="bg-blue-600 dark:bg-blue-800 text-white p-5 rounded-b-2xl shadow-md sticky top-0 z-30 transition-colors duration-300">
             <div class="flex justify-between items-center mb-3">
-                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Treinos Ricardo 💪🏽</h1>
+                <h1 class="text-2xl font-bold tracking-tight"><i class="fa-solid fa-dumbbell mr-2"></i>Treinos💪🏽</h1>
                 <div class="flex items-center space-x-3">
-                    <img id="user-avatar" src="" alt="" class="w-8 h-8 rounded-full border-2 border-blue-300 hidden object-cover">
+                    <img id="user-avatar" src="" alt=""
+                        class="w-8 h-8 rounded-full border-2 border-blue-300 hidden object-cover">
                     <button onclick="toggleTheme()" class="text-blue-100 hover:text-white transition">
                         <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
                     </button>
@@ -103,14 +146,16 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Quadro de Jornada (Modificado com barra de progresso) -->
-            <div class="flex justify-between items-center bg-blue-700/50 dark:bg-blue-900/50 rounded-lg p-3 relative overflow-hidden shadow-inner">
+            <div
+                class="flex justify-between items-center bg-blue-700/50 dark:bg-blue-900/50 rounded-lg p-3 relative overflow-hidden shadow-inner">
                 <!-- Barra de progresso de 3 meses -->
                 <div id="journey-progress" class="absolute left-0 bottom-0 h-1.5 bg-green-400" style="width: 0%;"></div>
-                
+
                 <div class="z-10 relative">
-                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold" id="journey-title">Meta (3 Meses)</p>
+                    <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold" id="journey-title">Meta (3
+                        Meses)</p>
                     <p class="font-bold text-lg" id="days-passed-display">Dia 0 / 90</p>
                 </div>
                 <div class="text-right z-10 relative">
@@ -121,53 +166,68 @@
         </header>
 
         <!-- Navegação de Treinos -->
-        <div class="px-2 pt-4 pb-2 border-b dark:border-gray-800 bg-white dark:bg-darkbg sticky top-[120px] z-20 transition-colors duration-300">
-            <div class="flex overflow-x-auto no-scrollbar space-x-2 pb-2" id="tabs-container"></div>
+        <div
+            class="px-2 pt-4 pb-2 border-b dark:border-gray-800 bg-white dark:bg-darkbg sticky top-[120px] z-20 transition-colors duration-300">
+            <div class="grid grid-cols-5 gap-1" id="tabs-container"></div>
         </div>
 
         <!-- Lista de Exercícios -->
         <main class="flex-1 overflow-y-auto p-4 pb-48 bg-gray-50 dark:bg-[#121212]" id="exercises-container"></main>
 
         <!-- Cronômetro Flutuante (Destacado) -->
-        <div id="timer-bar" class="fixed bottom-28 left-4 right-4 max-w-[360px] mx-auto bg-indigo-600 dark:bg-indigo-500 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.6)] hidden justify-between items-center z-50 border-2 border-indigo-400/50">
+        <div id="timer-bar"
+            class="fixed bottom-28 left-4 right-4 max-w-[360px] mx-auto bg-indigo-600 dark:bg-indigo-500 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.6)] hidden justify-between items-center z-50 border-2 border-indigo-400/50">
             <div class="flex items-center space-x-4">
                 <div class="bg-indigo-800/50 p-3 rounded-full flex justify-center items-center">
                     <i class="fa-solid fa-stopwatch text-2xl animate-pulse"></i>
                 </div>
                 <div>
-                    <span id="timer-text" class="font-mono font-bold text-3xl tracking-wider drop-shadow-md">01:00</span>
+                    <span id="timer-text"
+                        class="font-mono font-bold text-3xl tracking-wider drop-shadow-md">01:00</span>
                     <span class="text-sm block text-indigo-200 font-medium -mt-1">Descanso</span>
                 </div>
             </div>
             <div class="flex space-x-3">
-                <button onclick="addTimerTime(30)" class="bg-indigo-400 hover:bg-indigo-300 active:scale-95 text-indigo-900 w-12 h-12 rounded-full flex justify-center items-center font-black text-sm shadow-md transition">+30s</button>
-                <button onclick="stopTimer()" class="bg-red-500 hover:bg-red-400 active:scale-95 text-white w-12 h-12 rounded-full flex justify-center items-center shadow-md transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="addTimerTime(30)"
+                    class="bg-indigo-400 hover:bg-indigo-300 active:scale-95 text-indigo-900 w-12 h-12 rounded-full flex justify-center items-center font-black text-sm shadow-md transition">+30s</button>
+                <button onclick="stopTimer()"
+                    class="bg-red-500 hover:bg-red-400 active:scale-95 text-white w-12 h-12 rounded-full flex justify-center items-center shadow-md transition"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
             </div>
         </div>
 
         <!-- Botões Footer -->
-        <div class="fixed bottom-0 w-full max-w-md bg-white dark:bg-darkcard p-4 border-t dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex space-x-3 transition-colors duration-300">
-            <button onclick="startTimer(60)" class="w-1/3 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold py-3 rounded-xl shadow-sm transition active:scale-[0.98] flex flex-col justify-center items-center text-sm">
+        <div
+            class="fixed bottom-0 w-full max-w-md bg-white dark:bg-darkcard p-4 border-t dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex space-x-3 transition-colors duration-300">
+            <button onclick="startTimer(60)"
+                class="w-1/3 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold py-3 rounded-xl shadow-sm transition active:scale-[0.98] flex flex-col justify-center items-center text-sm">
                 <i class="fa-solid fa-stopwatch text-lg mb-1"></i> Timer 60s
             </button>
-            <button onclick="finishWorkout()" class="w-2/3 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.98] flex flex-col justify-center items-center text-lg">
+            <button onclick="finishWorkout()"
+                class="w-2/3 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.98] flex flex-col justify-center items-center text-lg">
                 <span class="flex items-center"><i class="fa-solid fa-check-circle mr-2"></i> Finalizar</span>
             </button>
         </div>
 
         <!-- Modal de Conclusão dos 3 Meses -->
         <div id="completion-modal" class="fixed inset-0 bg-black/80 z-[70] hidden flex justify-center items-center p-4">
-            <div class="bg-white dark:bg-darkcard w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300" id="completion-content">
-                <div class="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="bg-white dark:bg-darkcard w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300"
+                id="completion-content">
+                <div
+                    class="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fa-solid fa-trophy text-4xl text-yellow-500 drop-shadow-md"></i>
                 </div>
                 <h2 class="text-2xl font-black text-gray-800 dark:text-white mb-2">Meta Atingida!</h2>
-                <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Você completou <strong>3 meses</strong> (ou mais) desta jornada de treinos. O ideal agora é trocar a sua ficha para garantir novos estímulos musculares.</p>
+                <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Você completou <strong>3 meses</strong> (ou
+                    mais) desta jornada de treinos. O ideal agora é trocar a sua ficha para garantir novos estímulos
+                    musculares.</p>
                 <div class="space-y-3">
-                    <button onclick="resetJourney()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition active:scale-[0.98] flex justify-center items-center">
+                    <button onclick="resetJourney()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition active:scale-[0.98] flex justify-center items-center">
                         <i class="fa-solid fa-rotate-right mr-2"></i> Iniciar Nova Jornada (Zerar)
                     </button>
-                    <button onclick="closeCompletionModal()" class="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 px-4 rounded-xl transition active:scale-[0.98]">
+                    <button onclick="closeCompletionModal()"
+                        class="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-3 px-4 rounded-xl transition active:scale-[0.98]">
                         Continuar mesmo assim
                     </button>
                 </div>
@@ -175,30 +235,48 @@
         </div>
 
         <!-- Modal Histórico -->
-        <div id="history-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
-            <div class="bg-white dark:bg-darkcard w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300" id="history-content">
+        <div id="history-modal"
+            class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
+            <div class="bg-white dark:bg-darkcard w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300"
+                id="history-content">
                 <div class="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
-                    <h2 class="text-xl font-bold dark:text-white"><i class="fa-solid fa-clock-rotate-left text-blue-500 mr-2"></i>Histórico</h2>
-                    <button onclick="toggleHistory()" class="text-gray-500 dark:text-gray-400 p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                    <h2 class="text-xl font-bold dark:text-white"><i
+                            class="fa-solid fa-clock-rotate-left text-blue-500 mr-2"></i>Histórico</h2>
+                    <button onclick="toggleHistory()" class="text-gray-500 dark:text-gray-400 p-2"><i
+                            class="fa-solid fa-xmark text-2xl"></i></button>
                 </div>
+                <!-- Botão Desfazer Último Treino -->
+                <button onclick="undoLastWorkout()" id="undo-btn"
+                    class="w-full mb-3 flex items-center justify-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-semibold py-2.5 rounded-xl text-sm hover:bg-red-100 dark:hover:bg-red-900/40 active:scale-[0.98] transition-all">
+                    <i class="fa-solid fa-rotate-left"></i> Desfazer último treino
+                </button>
                 <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="history-list"></div>
             </div>
         </div>
 
         <!-- Modal Configurações / Edição -->
-        <div id="settings-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
-            <div class="bg-white dark:bg-darkcard w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300" id="settings-content">
+        <div id="settings-modal"
+            class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-end sm:items-center">
+            <div class="bg-white dark:bg-darkcard w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] rounded-t-3xl sm:rounded-2xl p-5 flex flex-col shadow-2xl transform transition-transform translate-y-full duration-300"
+                id="settings-content">
                 <div class="flex justify-between items-center mb-4 border-b dark:border-gray-700 pb-3">
-                    <h2 class="text-xl font-bold dark:text-white"><i class="fa-solid fa-gear text-blue-500 mr-2"></i>Configurações</h2>
-                    <button onclick="toggleSettings()" class="text-gray-500 dark:text-gray-400 p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                    <h2 class="text-xl font-bold dark:text-white"><i
+                            class="fa-solid fa-gear text-blue-500 mr-2"></i>Configurações</h2>
+                    <button onclick="toggleSettings()" class="text-gray-500 dark:text-gray-400 p-2"><i
+                            class="fa-solid fa-xmark text-2xl"></i></button>
                 </div>
-                
+
                 <div class="flex-1 overflow-y-auto pr-2 space-y-6">
                     <!-- Sessão de Edição do Treino Atual -->
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                    <div
+                        class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
                         <h3 class="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center justify-between">
-                            <span>Editar: <span id="edit-tab-name"></span> <button onclick="renameCurrentTab()" class="ml-2 text-blue-500 hover:text-blue-400 text-sm" title="Renomear Treino"><i class="fa-solid fa-pen-to-square"></i></button></span>
-                            <button onclick="openAddExercise()" class="text-xs bg-blue-600 text-white px-2 py-1 rounded"><i class="fa-solid fa-plus"></i> Novo</button>
+                            <span>Editar: <span id="edit-tab-name"></span> <button onclick="renameCurrentTab()"
+                                    class="ml-2 text-blue-500 hover:text-blue-400 text-sm" title="Renomear Treino"><i
+                                        class="fa-solid fa-pen-to-square"></i></button></span>
+                            <button onclick="openAddExercise()"
+                                class="text-xs bg-blue-600 text-white px-2 py-1 rounded"><i
+                                    class="fa-solid fa-plus"></i> Novo</button>
                         </h3>
                         <div id="edit-exercises-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
                     </div>
@@ -207,10 +285,14 @@
                     <div>
                         <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-3">Backup e Dados</h3>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="exportData()" class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"><i class="fa-solid fa-download mr-1"></i> Exportar</button>
-                            <label class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 text-center cursor-pointer flex items-center justify-center">
+                            <button onclick="exportData()"
+                                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"><i
+                                    class="fa-solid fa-download mr-1"></i> Exportar</button>
+                            <label
+                                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 text-center cursor-pointer flex items-center justify-center">
                                 <i class="fa-solid fa-upload mr-1"></i> Importar
-                                <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                                <input type="file" id="import-file" class="hidden" accept=".json"
+                                    onchange="importData(event)">
                             </label>
                         </div>
                     </div>
@@ -219,7 +301,8 @@
         </div>
 
         <!-- Toast -->
-        <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-[60] flex items-center">
+        <div id="toast"
+            class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-[60] flex items-center">
             <i class="fa-solid fa-circle-check text-green-400 mr-2 text-xl"></i>
             <span id="toast-message" class="font-medium">Ação realizada!</span>
         </div>
@@ -240,7 +323,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
+
         db.enablePersistence().catch(err => {
             console.warn('[Firebase] Erro na persistência offline:', err);
         });
@@ -268,7 +351,7 @@
                 const doc = await db.collection('users').doc(userId).collection('data').doc('main').get();
                 if (doc.exists) {
                     const d = doc.data();
-                    if (d.workoutData) { workoutData = d.workoutData; _origSetItem('appWorkoutData', JSON.stringify(d.workoutData)); }
+                    if (d.workoutData) { workoutData = sortTabs(d.workoutData); _origSetItem('appWorkoutData', JSON.stringify(workoutData)); }
                     if (d.checkedState) { checkedState = d.checkedState; _origSetItem('appCheckedState', JSON.stringify(d.checkedState)); }
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
@@ -276,12 +359,7 @@
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
                     tabs = Object.keys(workoutData);
-                    if (d.currentTab && tabs.includes(d.currentTab)) {
-                        currentTab = d.currentTab;
-                        _origSetItem('currentTab', currentTab);
-                    } else {
-                        currentTab = localStorage.getItem('currentTab') || tabs[0];
-                    }
+                    currentTab = localStorage.getItem('currentTab') || tabs[0];
                 }
             } catch (e) {
                 console.warn('[Firebase] Erro ao carregar:', e);
@@ -291,7 +369,7 @@
         function saveToFirestore() {
             if (!currentUser) return;
             db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
-                workoutData, checkedState, exerciseWeights, workoutHistory, startDate, currentTab,
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
                 theme: localStorage.getItem('theme') || 'light',
                 cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -300,9 +378,9 @@
 
         // Auto-sync: intercept localStorage writes
         const _origSetItem = localStorage.setItem.bind(localStorage);
-        const _syncKeys = ['appWorkoutData','appCheckedState','appWeights','workoutHistory','workoutStartDate','workoutCycleAcknowledged','theme','currentTab'];
+        const _syncKeys = ['appWorkoutData', 'appCheckedState', 'appWeights', 'workoutHistory', 'workoutStartDate', 'workoutCycleAcknowledged', 'theme'];
         let _syncTimer = null;
-        localStorage.setItem = function(key, value) {
+        localStorage.setItem = function (key, value) {
             _origSetItem(key, value);
             if (currentUser && _syncKeys.includes(key)) {
                 clearTimeout(_syncTimer);
@@ -363,19 +441,32 @@
         };
 
         // --- 2. STATE MANAGEMENT ---
-        let workoutData = JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData;
-        
+        // Ordem fixa dos treinos — sempre respeitada independente do Firebase ou localStorage
+        const TAB_ORDER = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glút', 'Costas e Tríceps', 'FULL BODY'];
+
+        function sortTabs(data) {
+            const sorted = {};
+            TAB_ORDER.forEach(key => { if (data[key]) sorted[key] = data[key]; });
+            // Adiciona tabs extras que não estejam no TAB_ORDER (caso o usuário crie novos)
+            Object.keys(data).forEach(key => { if (!sorted[key]) sorted[key] = data[key]; });
+            return sorted;
+        }
+
+        let workoutData = sortTabs(JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData);
+
         Object.keys(workoutData).forEach(tab => {
-            workoutData[tab].forEach(ex => { if(!ex.id) ex.id = Math.random().toString(36).substr(2, 9); });
+            workoutData[tab].forEach(ex => { if (!ex.id) ex.id = Math.random().toString(36).substr(2, 9); });
         });
         localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
 
         let tabs = Object.keys(workoutData);
-        let currentTab = localStorage.getItem('currentTab') || tabs[0];
-        
+        // currentTab será definido corretamente após o Firebase carregar (em loadFromFirestore)
+        // Aqui apenas um valor temporário para não quebrar antes do login
+        let currentTab = tabs[0];
+
         let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
-        
+
         // --- ATUALIZAÇÃO SOLICITADA: Limpar histórico e definir 2 dias passados ---
         if (!localStorage.getItem('update_2days_clear_v1')) {
             localStorage.setItem('workoutHistory', '[]'); // Limpa o histórico
@@ -387,7 +478,7 @@
 
         let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
         let startDate = localStorage.getItem('workoutStartDate');
-        
+
         if (!startDate) {
             startDate = new Date().toISOString();
             localStorage.setItem('workoutStartDate', startDate);
@@ -397,10 +488,11 @@
         function init() {
             initTheme();
             updateHeaderDates();
+            // nextTab já foi definido corretamente pelo loadFromFirestore
             renderTabs();
             renderExercises();
             renderHistory();
-            setInterval(updateHeaderDates, 60000); 
+            setInterval(updateHeaderDates, 60000);
         }
 
         function initTheme() {
@@ -431,29 +523,29 @@
             document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).toUpperCase();
 
             const start = new Date(startDate);
-            start.setHours(0,0,0,0);
+            start.setHours(0, 0, 0, 0);
             const today = new Date();
-            today.setHours(0,0,0,0);
-            
+            today.setHours(0, 0, 0, 0);
+
             // Calcula 3 meses (data final)
             const endDate = new Date(start);
             endDate.setMonth(endDate.getMonth() + 3);
-            
+
             // Cálculos exatos em dias
             const totalDays = Math.round((endDate - start) / (1000 * 60 * 60 * 24));
             let passedDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-            
+
             if (passedDays < 0) passedDays = 0;
-            
+
             let remainingDays = totalDays - passedDays;
-            
+
             // Barra de Progresso Visual
             let progress = (passedDays / totalDays) * 100;
             if (progress > 100) progress = 100;
-            
+
             const progressElement = document.getElementById('journey-progress');
             progressElement.style.width = `${progress}%`;
-            
+
             // UI Textos
             if (remainingDays > 0) {
                 document.getElementById('journey-title').innerText = "Meta (3 Meses)";
@@ -463,7 +555,7 @@
                 document.getElementById('journey-title').innerText = "Ciclo Concluído";
                 document.getElementById('days-passed-display').innerText = `Dia ${passedDays} (Bônus)`;
                 progressElement.classList.replace('bg-green-400', 'bg-yellow-400');
-                
+
                 checkJourneyCompletion();
             }
         }
@@ -488,26 +580,53 @@
             localStorage.setItem('workoutStartDate', new Date().toISOString());
             localStorage.removeItem('workoutCycleAcknowledged');
             startDate = localStorage.getItem('workoutStartDate');
-            
+
             const modal = document.getElementById('completion-modal');
             modal.classList.add('hidden');
-            
+
             updateHeaderDates();
             showToast("Nova jornada de 3 meses iniciada!");
         }
 
         // --- 4. RENDERIZAÇÃO PRINCIPAL ---
+        // nextTab espelha o currentTab — definido após Firebase carregar
+        let nextTab = currentTab;
+
         function renderTabs() {
             const container = document.getElementById('tabs-container');
             container.innerHTML = '';
             tabs.forEach(tab => {
-                const isActive = tab === currentTab;
+                const isNext = tab === nextTab;
+                const isSelected = tab === currentTab;
                 const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ease-in-out ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`;
-                btn.innerText = tab;
+
+                let cls = 'px-1 py-2 rounded-xl text-[11px] font-semibold transition-colors duration-200 ease-in-out text-center leading-tight ';
+
+                if (isSelected && isNext) {
+                    // Selecionado E é o próximo: verde vibrante
+                    cls += 'bg-green-500 text-white shadow-md ring-2 ring-green-300 w-full';
+                } else if (isSelected && !isNext) {
+                    // Selecionado mas não é o próximo: azul (visualizando outro treino)
+                    cls += 'bg-blue-600 text-white shadow-md w-full';
+                } else if (isNext) {
+                    // Próximo mas não selecionado: verde mais suave
+                    cls += 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 ring-2 ring-green-400 hover:bg-green-200 dark:hover:bg-green-800/50 w-full';
+                } else {
+                    // Outros treinos: laranja
+                    cls += 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-800/40 w-full';
+                }
+
+                btn.className = cls;
+
+                // Ícone de "próximo" para o tab que vem a seguir
+                if (isNext) {
+                    btn.innerHTML = `<i class="fa-solid fa-play text-[10px] block mb-0.5 opacity-80"></i>${tab}`;
+                } else {
+                    btn.innerText = tab;
+                }
+
                 btn.onclick = () => {
-                    currentTab = tab;
-                    localStorage.setItem('currentTab', currentTab);
+                    currentTab = tab; // só navegação, não afeta o próximo treino
                     renderTabs();
                     renderExercises();
                 };
@@ -518,17 +637,17 @@
         function renderExercises() {
             const container = document.getElementById('exercises-container');
             container.innerHTML = '';
-            
+
             const exercises = workoutData[currentTab] || [];
             container.style.opacity = 0;
-            
+
             exercises.forEach((ex) => {
                 const isChecked = checkedState[currentTab] && checkedState[currentTab].includes(ex.id);
                 const weight = exerciseWeights[ex.id] || '';
-                
+
                 const card = document.createElement('div');
                 card.className = `bg-white dark:bg-darkcard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-3 transition-all duration-200 ${isChecked ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : ''}`;
-                
+
                 card.innerHTML = `
                     <div class="flex items-center justify-between cursor-pointer" onclick="toggleExercise('${ex.id}')">
                         <div class="flex-1 pr-4">
@@ -564,14 +683,14 @@
         function toggleExercise(id) {
             if (!checkedState[currentTab]) checkedState[currentTab] = [];
             const idx = checkedState[currentTab].indexOf(id);
-            
+
             if (idx > -1) {
                 checkedState[currentTab].splice(idx, 1);
             } else {
                 checkedState[currentTab].push(id);
                 if (navigator.vibrate) navigator.vibrate(50);
             }
-            
+
             localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
             renderExercises();
         }
@@ -590,14 +709,14 @@
             clearInterval(timerInterval);
             timeLeft = seconds;
             endTime = Date.now() + (seconds * 1000);
-            
+
             document.getElementById('timer-bar').classList.remove('hidden');
             document.getElementById('timer-bar').classList.add('flex');
             updateTimerDisplay();
-            
+
             timerInterval = setInterval(() => {
                 timeLeft = Math.round((endTime - Date.now()) / 1000);
-                
+
                 if (timeLeft <= 0) {
                     timeLeft = 0;
                     updateTimerDisplay();
@@ -608,7 +727,7 @@
                 } else {
                     updateTimerDisplay();
                 }
-            }, 500); 
+            }, 500);
         }
 
         function updateTimerDisplay() {
@@ -639,25 +758,28 @@
                 osc.connect(ctx.destination);
                 osc.start();
                 osc.stop(ctx.currentTime + 0.3);
-            } catch(e) {}
+            } catch (e) { }
         }
 
         // --- 6. LÓGICA DE FINALIZAR E DESCANSO ---
         function advanceTab() {
-            const currentIndex = tabs.indexOf(currentTab);
+            // Avança o PRÓXIMO TREINO com base no nextTab atual (não no que está sendo visualizado)
+            const currentIndex = tabs.indexOf(nextTab);
             let nextIndex = currentIndex + 1;
             if (nextIndex >= tabs.length) nextIndex = 0;
-            currentTab = tabs[nextIndex];
-            localStorage.setItem('currentTab', currentTab);
+            nextTab = tabs[nextIndex];
+            currentTab = nextTab; // após finalizar, mostra o próximo
+            localStorage.setItem('nextTab', nextTab);
         }
 
         function finishWorkout() {
-            const exercises = workoutData[currentTab] || [];
-            const doneCount = (checkedState[currentTab] || []).length;
+            // Finaliza o PRÓXIMO TREINO (nextTab), independente do que está sendo visualizado
+            const exercises = workoutData[nextTab] || [];
+            const doneCount = (checkedState[nextTab] || []).length;
             const totalCount = exercises.length;
 
             if (doneCount === 0) {
-                alert("Você não marcou nenhum exercício!");
+                alert("Você não marcou nenhum exercício! Marque os exercícios do treino destacado em verde.");
                 return;
             }
 
@@ -669,28 +791,23 @@
             workoutHistory.unshift({
                 id: Date.now(),
                 type: 'workout',
-                tabName: currentTab,
+                tabName: nextTab,
                 date: now.toLocaleDateString('pt-BR'),
-                time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' }),
+                time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 exercisesDone: doneCount,
                 totalExercises: totalCount
             });
 
-            if(workoutHistory.length > 50) workoutHistory.pop();
+            if (workoutHistory.length > 50) workoutHistory.pop();
             localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
 
-            checkedState[currentTab] = [];
+            checkedState[nextTab] = [];
             localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
             stopTimer();
-            
+
             const finished = currentTab;
             advanceTab();
-            
-            if (currentUser) {
-                clearTimeout(_syncTimer);
-                saveToFirestore();
-            }
-            
+
             renderTabs();
             renderExercises();
             renderHistory();
@@ -700,6 +817,10 @@
 
         function renderHistory() {
             const list = document.getElementById('history-list');
+            const hasWorkouts = workoutHistory.some(item => item.type === 'workout');
+            const undoBtn = document.getElementById('undo-btn');
+            if (undoBtn) undoBtn.style.display = hasWorkouts ? '' : 'none';
+
             if (workoutHistory.length === 0) {
                 list.innerHTML = `<p class="text-center text-gray-400 mt-10">Nenhum histórico.</p>`;
                 return;
@@ -709,7 +830,7 @@
             workoutHistory.forEach(item => {
                 const isRest = item.type === 'rest';
                 const isComplete = !isRest && item.exercisesDone === item.totalExercises;
-                
+
                 let html = `
                     <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 p-3 rounded-lg flex justify-between items-center">
                         <div>
@@ -719,14 +840,41 @@
                             </h4>
                             <p class="text-xs text-gray-500 dark:text-gray-400">${item.date} às ${item.time}</p>
                         </div>`;
-                
-                if(!isRest) {
+
+                if (!isRest) {
                     html += `<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded font-bold">${item.exercisesDone}/${item.totalExercises}</span>`;
                 }
-                
+
                 html += `</div>`;
                 list.insertAdjacentHTML('beforeend', html);
             });
+        }
+
+
+        // --- DESFAZER ÚLTIMO TREINO ---
+        function undoLastWorkout() {
+            const lastWorkoutIdx = workoutHistory.findIndex(item => item.type === 'workout');
+            if (lastWorkoutIdx === -1) {
+                showToast("Nenhum treino para desfazer.");
+                return;
+            }
+
+            const lastWorkout = workoutHistory[lastWorkoutIdx];
+            if (!confirm(`Desfazer "${lastWorkout.tabName}" (${lastWorkout.date} às ${lastWorkout.time})?`)) return;
+
+            // Remove do histórico
+            workoutHistory.splice(lastWorkoutIdx, 1);
+            localStorage.setItem('workoutHistory', JSON.stringify(workoutHistory));
+
+            // Volta o próximo treino para o que foi desfeito
+            nextTab = lastWorkout.tabName;
+            currentTab = nextTab;
+            localStorage.setItem('nextTab', nextTab);
+
+            renderTabs();
+            renderExercises();
+            renderHistory();
+            showToast(`"${lastWorkout.tabName}" removido do histórico!`);
         }
 
         // --- 7. CONFIGURAÇÕES E EDIÇÃO ---
@@ -776,18 +924,18 @@
         function moveExercise(index, direction) {
             const arr = workoutData[currentTab];
             if (index + direction < 0 || index + direction >= arr.length) return;
-            
+
             const temp = arr[index];
             arr[index] = arr[index + direction];
             arr[index + direction] = temp;
-            
+
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
             renderEditList();
-            renderExercises(); 
+            renderExercises();
         }
 
         function removeExercise(id) {
-            if(!confirm("Remover este exercício do treino?")) return;
+            if (!confirm("Remover este exercício do treino?")) return;
             workoutData[currentTab] = workoutData[currentTab].filter(ex => ex.id !== id);
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
             renderEditList();
@@ -796,17 +944,17 @@
 
         function openAddExercise() {
             const name = prompt("Nome do exercício:");
-            if(!name) return;
+            if (!name) return;
             const sets = prompt("Séries (ex: 3):", "3") || "3";
             const reps = prompt("Repetições (ex: 12):", "12") || "12";
-            
+
             workoutData[currentTab].push({
                 id: Math.random().toString(36).substr(2, 9),
                 name: name.toUpperCase(),
                 sets: sets,
                 reps: reps
             });
-            
+
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
             renderEditList();
             renderExercises();
@@ -815,11 +963,11 @@
 
         function renameCurrentTab() {
             const newName = prompt("Digite o novo nome para este treino:", currentTab);
-            
+
             if (!newName || newName.trim() === "" || newName === currentTab) return;
-            
+
             const trimmedName = newName.trim();
-            
+
             if (workoutData[trimmedName]) {
                 alert("Já existe um treino com este nome!");
                 return;
@@ -836,7 +984,7 @@
 
             workoutData = newWorkoutData;
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
-            
+
             if (checkedState[currentTab]) {
                 checkedState[trimmedName] = checkedState[currentTab];
                 delete checkedState[currentTab];
@@ -845,8 +993,10 @@
 
             tabs = Object.keys(workoutData);
             currentTab = trimmedName;
-            localStorage.setItem('currentTab', currentTab);
-            
+            // Se o treino renomeado era o próximo, atualiza nextTab também
+            if (nextTab === currentTab || nextTab === currentTab) nextTab = trimmedName;
+            localStorage.setItem('nextTab', nextTab);
+
             renderEditList();
             renderTabs();
             renderExercises();
@@ -859,7 +1009,7 @@
                 workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
                 acknowledged: localStorage.getItem('workoutCycleAcknowledged')
             };
-            const blob = new Blob([JSON.stringify(dataToSave)], {type: "application/json"});
+            const blob = new Blob([JSON.stringify(dataToSave)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -872,27 +1022,27 @@
 
         function importData(event) {
             const file = event.target.files[0];
-            if(!file) return;
+            if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if(data.workoutData) {
+                    if (data.workoutData) {
                         // Update in-memory state
                         workoutData = data.workoutData;
                         checkedState = data.checkedState || {};
                         exerciseWeights = data.exerciseWeights || {};
                         workoutHistory = data.workoutHistory || [];
-                        if(data.startDate) startDate = data.startDate;
+                        if (data.startDate) startDate = data.startDate;
 
                         // Save to localStorage (bypass auto-sync interceptor)
                         _origSetItem('appWorkoutData', JSON.stringify(workoutData));
                         _origSetItem('appCheckedState', JSON.stringify(checkedState));
                         _origSetItem('appWeights', JSON.stringify(exerciseWeights));
                         _origSetItem('workoutHistory', JSON.stringify(workoutHistory));
-                        if(data.startDate) _origSetItem('workoutStartDate', data.startDate);
-                        if(data.acknowledged) _origSetItem('workoutCycleAcknowledged', data.acknowledged);
+                        if (data.startDate) _origSetItem('workoutStartDate', data.startDate);
+                        if (data.acknowledged) _origSetItem('workoutCycleAcknowledged', data.acknowledged);
 
                         // Sync to Firestore then reload
                         saveToFirestore();
@@ -901,7 +1051,7 @@
                     } else {
                         alert("Arquivo inválido.");
                     }
-                } catch(err) {
+                } catch (err) {
                     alert("Erro ao ler o arquivo.");
                 }
             };
@@ -950,4 +1100,5 @@
 
     </script>
 </body>
+
 </html>
