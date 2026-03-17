@@ -359,7 +359,26 @@
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
                     tabs = Object.keys(workoutData);
-                    currentTab = localStorage.getItem('currentTab') || tabs[0];
+                    
+                    let dbNext = d.nextTab;
+                    if (dbNext === 'Posterior e Glút') dbNext = 'Posterior e Glúteos';
+                    if (dbNext === 'FULL BODY') dbNext = 'FULLbody';
+                    if (dbNext && tabs.includes(dbNext)) {
+                        nextTab = dbNext;
+                        _origSetItem('nextTab', nextTab);
+                    } else {
+                        nextTab = localStorage.getItem('nextTab') || tabs[0];
+                    }
+                    
+                    let dbCurr = d.currentTab;
+                    if (dbCurr === 'Posterior e Glút') dbCurr = 'Posterior e Glúteos';
+                    if (dbCurr === 'FULL BODY') dbCurr = 'FULLbody';
+                    if (dbCurr && tabs.includes(dbCurr)) {
+                        currentTab = dbCurr;
+                        _origSetItem('currentTab', currentTab);
+                    } else {
+                        currentTab = localStorage.getItem('currentTab') || nextTab;
+                    }
                 }
             } catch (e) {
                 console.warn('[Firebase] Erro ao carregar:', e);
@@ -369,7 +388,7 @@
         function saveToFirestore() {
             if (!currentUser) return;
             db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
-                workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate, currentTab, nextTab,
                 theme: localStorage.getItem('theme') || 'light',
                 cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -442,9 +461,13 @@
 
         // --- 2. STATE MANAGEMENT ---
         // Ordem fixa dos treinos — sempre respeitada independente do Firebase ou localStorage
-        const TAB_ORDER = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glút', 'Costas e Tríceps', 'FULL BODY'];
+        const TAB_ORDER = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glúteos', 'Costas e Tríceps', 'FULLbody'];
 
         function sortTabs(data) {
+            // Migra chaves antigas se existirem
+            if (data['Posterior e Glút']) { data['Posterior e Glúteos'] = data['Posterior e Glút']; delete data['Posterior e Glút']; }
+            if (data['FULL BODY']) { data['FULLbody'] = data['FULL BODY']; delete data['FULL BODY']; }
+
             const sorted = {};
             TAB_ORDER.forEach(key => { if (data[key]) sorted[key] = data[key]; });
             // Adiciona tabs extras que não estejam no TAB_ORDER (caso o usuário crie novos)
@@ -460,9 +483,17 @@
         localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
 
         let tabs = Object.keys(workoutData);
-        // currentTab será definido corretamente após o Firebase carregar (em loadFromFirestore)
-        // Aqui apenas um valor temporário para não quebrar antes do login
-        let currentTab = tabs[0];
+        
+        // currentTab e nextTab inicializados do localstorage
+        let nextTab = localStorage.getItem('nextTab');
+        if (nextTab === 'Posterior e Glút') nextTab = 'Posterior e Glúteos';
+        if (nextTab === 'FULL BODY') nextTab = 'FULLbody';
+        if (!nextTab || !tabs.includes(nextTab)) nextTab = tabs[0];
+        
+        let currentTab = localStorage.getItem('currentTab');
+        if (currentTab === 'Posterior e Glút') currentTab = 'Posterior e Glúteos';
+        if (currentTab === 'FULL BODY') currentTab = 'FULLbody';
+        if (!currentTab || !tabs.includes(currentTab)) currentTab = nextTab;
 
         let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
@@ -589,8 +620,7 @@
         }
 
         // --- 4. RENDERIZAÇÃO PRINCIPAL ---
-        // nextTab espelha o currentTab — definido após Firebase carregar
-        let nextTab = currentTab;
+
 
         function renderTabs() {
             const container = document.getElementById('tabs-container');
@@ -770,6 +800,7 @@
             nextTab = tabs[nextIndex];
             currentTab = nextTab; // após finalizar, mostra o próximo
             localStorage.setItem('nextTab', nextTab);
+            localStorage.setItem('currentTab', currentTab);
         }
 
         function finishWorkout() {
