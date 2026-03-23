@@ -360,7 +360,7 @@
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
                     if (d.weightHistoryData) { weightHistoryData = d.weightHistoryData; _origSetItem('appWeightHistoryData', JSON.stringify(d.weightHistoryData)); }
-                    if (d.startDate && Object.keys(workoutData).some(k => ['Série A','Série B','Série C','Série D'].includes(k))) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
+                    if (d.startDate && Object.keys(workoutData).some(k => ['Série A','Série B','Série C','Série D'].includes(k)) && localStorage.getItem('update_new_ficha_abcd_v2')) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
                     tabs = Object.keys(workoutData);
@@ -496,15 +496,16 @@
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
 
         // --- ATUALIZAÇÃO: Zerar jornada e aplicar nova ficha (A/B/C/D) ---
-        if (!localStorage.getItem('update_new_ficha_abcd_v1')) {
+        if (!localStorage.getItem('update_new_ficha_abcd_v2')) {
             localStorage.setItem('workoutHistory', '[]');
             localStorage.setItem('workoutStartDate', new Date().toISOString());
             localStorage.setItem('workoutCycleAcknowledged', '');
             localStorage.removeItem('appWorkoutData'); // força uso do defaultWorkoutData
             localStorage.removeItem('nextTab');
             localStorage.removeItem('currentTab');
-            localStorage.setItem('update_new_ficha_abcd_v1', 'true');
+            localStorage.setItem('update_new_ficha_abcd_v2', 'true');
             // Remove flags antigas
+            localStorage.removeItem('update_new_ficha_abcd_v1');
             localStorage.removeItem('update_2days_clear_v1');
         }
 
