@@ -351,29 +351,29 @@
                 const doc = await db.collection('users').doc(userId).collection('data').doc('main').get();
                 if (doc.exists) {
                     const d = doc.data();
-                    if (d.workoutData) { workoutData = sortTabs(d.workoutData); _origSetItem('appWorkoutData', JSON.stringify(workoutData)); }
+                    if (d.workoutData) { 
+                        const sorted = sortTabs(d.workoutData);
+                        workoutData = (Object.keys(sorted).length > 0) ? sorted : defaultWorkoutData;
+                        _origSetItem('appWorkoutData', JSON.stringify(workoutData)); 
+                    }
                     if (d.checkedState) { checkedState = d.checkedState; _origSetItem('appCheckedState', JSON.stringify(d.checkedState)); }
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
                     if (d.weightHistoryData) { weightHistoryData = d.weightHistoryData; _origSetItem('appWeightHistoryData', JSON.stringify(d.weightHistoryData)); }
-                    if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
+                    if (d.startDate && Object.keys(workoutData).some(k => ['Série A','Série B','Série C','Série D'].includes(k))) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
                     tabs = Object.keys(workoutData);
                     
                     let dbNext = d.nextTab;
-                    if (dbNext === 'Posterior e Glút') dbNext = 'Posterior e Glúteos';
-                    if (dbNext === 'FULL BODY') dbNext = 'FULLbody';
                     if (dbNext && tabs.includes(dbNext)) {
                         nextTab = dbNext;
                         _origSetItem('nextTab', nextTab);
                     } else {
-                        nextTab = localStorage.getItem('nextTab') || tabs[0];
+                        nextTab = tabs[0];
                     }
                     
                     let dbCurr = d.currentTab;
-                    if (dbCurr === 'Posterior e Glút') dbCurr = 'Posterior e Glúteos';
-                    if (dbCurr === 'FULL BODY') dbCurr = 'FULLbody';
                     // User explicitly requested to ALWAYS open at the current progression step (nextTab)
                     currentTab = nextTab;
                     _origSetItem('currentTab', currentTab);
@@ -407,64 +407,65 @@
 
         // --- 1. DADOS PADRÃO ---
         const defaultWorkoutData = {
-            'Quadríceps': [
-                { id: 'q1', name: 'AGACHAMENTO CORPORAL', sets: '3', reps: '12' },
-                { id: 'q2', name: 'CADEIRA EXTENSORA', sets: '3', reps: '12' },
-                { id: 'q3', name: 'LEG PRESS 45', sets: '3', reps: '12' },
-                { id: 'q4', name: 'CADEIRA ADUTORA', sets: '3', reps: '12' },
-                { id: 'q5', name: 'PANTURRILHA SENTADA', sets: '3', reps: '12' },
-                { id: 'q6', name: 'ABD INFRA', sets: '3', reps: '10' },
-                { id: 'q7', name: 'OBLÍQUO ANILHA', sets: '3', reps: '10' }
+            'Série A': [
+                { id: 'a1', name: 'ALONGAMENTO M.M.S.S.', sets: '-', reps: '-' },
+                { id: 'a2', name: 'ABD SUPRA', sets: '4', reps: '10' },
+                { id: 'a3', name: 'PECK DECK', sets: '4', reps: '10' },
+                { id: 'a4', name: 'CRUCIFIXO INCLINADO MÁQUINA', sets: '4', reps: '10' },
+                { id: 'a5', name: 'SUPINO BANCO COM HALTER', sets: '4', reps: '10' },
+                { id: 'a6', name: 'TRÍCEPS MÁQUINA', sets: '4', reps: '10' },
+                { id: 'a7', name: 'PULLEY TRÍCEPS INVERSO', sets: '4', reps: '10' },
+                { id: 'a8', name: 'TRÍCEPS FRANCÊS', sets: '4', reps: '10' },
+                { id: 'a9', name: 'ELÍPTICO', sets: '-', reps: '-' },
+                { id: 'a10', name: 'ESTEIRA', sets: '-', reps: '15min' }
             ],
-            'Peito e Bíceps': [
-                { id: 'p1', name: 'SUPINO INCLINADO', sets: '3', reps: '12' },
-                { id: 'p2', name: 'SUPINO RETO MAQUINA', sets: '3', reps: '12' },
-                { id: 'p3', name: 'PECK DECK', sets: '3', reps: '12' },
-                { id: 'p4', name: 'ROSCA 90º', sets: '3', reps: '12' },
-                { id: 'p5', name: 'ROSCA MARTELO', sets: '3', reps: '12' },
-                { id: 'p6', name: 'ROSCA DIRETA', sets: '3', reps: '12' },
-                { id: 'p7', name: 'ABD REMADOR', sets: '3', reps: '12' },
-                { id: 'p8', name: 'CARDIO', sets: '-', reps: '-' }
+            'Série B': [
+                { id: 'b1', name: 'ALONGAMENTO M.M.I.I.', sets: '-', reps: '-' },
+                { id: 'b2', name: 'PRANCHA', sets: '3', reps: '20s' },
+                { id: 'b3', name: 'CADEIRA EXTENSORA', sets: '4', reps: '10' },
+                { id: 'b4', name: 'CADEIRA EXTENSORA UNILATERAL', sets: '4', reps: '8' },
+                { id: 'b5', name: 'LEG PRESS HORIZONTAL', sets: '4', reps: '10' },
+                { id: 'b6', name: 'CADEIRA ADUTORA', sets: '2', reps: '20' },
+                { id: 'b7', name: 'AGACHAMENTO COM HALTER', sets: '4', reps: '10' },
+                { id: 'b8', name: 'PANTURRILHA MÁQUINA', sets: '4', reps: '15' },
+                { id: 'b9', name: 'BICICLETA', sets: '-', reps: '15min' }
             ],
-            'Posterior e Glút': [
-                { id: 'g1', name: 'CADEIRA FLEXORA', sets: '3', reps: '12' },
-                { id: 'g2', name: 'MESA FLEXORA', sets: '3', reps: '12' },
-                { id: 'g3', name: 'STIFF', sets: '3', reps: '15' },
-                { id: 'g4', name: 'CADEIRA ABDUTORA', sets: '3', reps: '8-12' },
-                { id: 'g5', name: 'ELEVAÇÃO PÉLVICA', sets: '3', reps: '12' },
-                { id: 'g6', name: 'GLÚTEO NA MÁQUINA', sets: '3', reps: '15' },
-                { id: 'g7', name: 'ABD MÁQUINA', sets: '3', reps: '15' }
+            'Série C': [
+                { id: 'c1', name: 'ALONGAMENTO M.M.S.S.', sets: '-', reps: '-' },
+                { id: 'c2', name: 'ABD INFRA', sets: '3', reps: '12' },
+                { id: 'c3', name: 'PULLEY FRENTE', sets: '4', reps: '10' },
+                { id: 'c4', name: 'REMADA BAIXA', sets: '4', reps: '10' },
+                { id: 'c5', name: 'FACE PULL', sets: '4', reps: '10' },
+                { id: 'c6', name: 'PULLEY ARTICULADO', sets: '4', reps: '10' },
+                { id: 'c7', name: 'ROSCA DIRETA', sets: '4', reps: '10' },
+                { id: 'c8', name: 'ROSCA MARTELO ALTERNADO', sets: '4', reps: '10' },
+                { id: 'c9', name: 'ROSCA SCOTT', sets: '4', reps: '10' },
+                { id: 'c10', name: 'ESTEIRA', sets: '-', reps: '15min' }
             ],
-            'Costas e Tríceps': [
-                { id: 'c1', name: 'PULLEY FRENTE', sets: '3', reps: '12' },
-                { id: 'c2', name: 'REMADA CURVADA', sets: '3', reps: '12' },
-                { id: 'c3', name: 'CRUCIFIXO INVERSO', sets: '3', reps: '15' },
-                { id: 'c4', name: 'TRÍCEPS FRANCÊS', sets: '3', reps: '12' },
-                { id: 'c5', name: 'TRÍCEPS PULLEY', sets: '3', reps: '12' },
-                { id: 'c6', name: 'DESENVOLVIMENTO MÁQUINA', sets: '3', reps: '12' },
-                { id: 'c7', name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
-                { id: 'c8', name: 'CARDIO', sets: '-', reps: '-' }
-            ],
-            'FULL BODY': [
-                { id: 'f1', name: 'SUPINO INCLINADO', sets: '3', reps: '15' },
-                { id: 'f2', name: 'PULLEY FRENTE', sets: '3', reps: '15' },
-                { id: 'f3', name: 'CADEIRA EXTENSORA', sets: '3', reps: '15' },
-                { id: 'f4', name: 'MESA FLEXORA', sets: '3', reps: '12' },
-                { id: 'f5', name: 'ROSCA ALTERNADA', sets: '3', reps: '15' },
-                { id: 'f6', name: 'TRÍCEPS MÁQUINA', sets: '3', reps: '15' },
-                { id: 'f7', name: 'ELEVAÇÃO LATERAL', sets: '3', reps: '12' },
-                { id: 'f8', name: 'ABD SUPRA', sets: '3', reps: '15' }
+            'Série D': [
+                { id: 'd1', name: 'ALONGAMENTO M.M.I.I.', sets: '-', reps: '-' },
+                { id: 'd2', name: 'PRANCHA', sets: '3', reps: '20s' },
+                { id: 'd3', name: 'CADEIRA ABDUTORA', sets: '4', reps: '10' },
+                { id: 'd4', name: 'CADEIRA FLEXORA', sets: '4', reps: '10' },
+                { id: 'd5', name: 'AGACHAMENTO SUMO COM HALTER', sets: '4', reps: '10' },
+                { id: 'd6', name: 'MESA FLEXORA', sets: '4', reps: '10' },
+                { id: 'd7', name: 'FLEXORA EM PÉ', sets: '4', reps: '10' },
+                { id: 'd8', name: 'PANTURRILHA', sets: '3', reps: 'Falha' },
+                { id: 'd9', name: 'BICICLETA', sets: '-', reps: '15min' }
             ]
         };
 
         // --- 2. STATE MANAGEMENT ---
         // Ordem fixa dos treinos — sempre respeitada independente do Firebase ou localStorage
-        const TAB_ORDER = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glúteos', 'Costas e Tríceps', 'FULLbody'];
+        const TAB_ORDER = ['Série A', 'Série B', 'Série C', 'Série D'];
 
         function sortTabs(data) {
-            // Migra chaves antigas se existirem
+            // Migra chaves antigas (ficha velha -> nova A/B/C/D)
             if (data['Posterior e Glút']) { data['Posterior e Glúteos'] = data['Posterior e Glút']; delete data['Posterior e Glút']; }
             if (data['FULL BODY']) { data['FULLbody'] = data['FULL BODY']; delete data['FULL BODY']; }
+            // Se ainda tem chaves da ficha antiga, descarta tudo (nova ficha vai ser carregada)
+            const oldKeys = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glúteos', 'Costas e Tríceps', 'FULLbody'];
+            if (oldKeys.some(k => data[k])) return {};
 
             const sorted = {};
             TAB_ORDER.forEach(key => { if (data[key]) sorted[key] = data[key]; });
@@ -473,7 +474,8 @@
             return sorted;
         }
 
-        let workoutData = sortTabs(JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData);
+        let _rawWorkoutData = sortTabs(JSON.parse(localStorage.getItem('appWorkoutData')) || defaultWorkoutData);
+        let workoutData = (Object.keys(_rawWorkoutData).length > 0) ? _rawWorkoutData : defaultWorkoutData;
 
         Object.keys(workoutData).forEach(tab => {
             workoutData[tab].forEach(ex => { if (!ex.id) ex.id = Math.random().toString(36).substr(2, 9); });
@@ -484,8 +486,6 @@
         
         // currentTab e nextTab inicializados do localstorage
         let nextTab = localStorage.getItem('nextTab');
-        if (nextTab === 'Posterior e Glút') nextTab = 'Posterior e Glúteos';
-        if (nextTab === 'FULL BODY') nextTab = 'FULLbody';
         if (!nextTab || !tabs.includes(nextTab)) nextTab = tabs[0];
         
         // User explicitly requested to ALWAYS open at the current progression step (nextTab)
@@ -495,13 +495,17 @@
         let checkedState = JSON.parse(localStorage.getItem('appCheckedState')) || {};
         let exerciseWeights = JSON.parse(localStorage.getItem('appWeights')) || {};
 
-        // --- ATUALIZAÇÃO SOLICITADA: Limpar histórico e definir 2 dias passados ---
-        if (!localStorage.getItem('update_2days_clear_v1')) {
-            localStorage.setItem('workoutHistory', '[]'); // Limpa o histórico
-            let date2DaysAgo = new Date();
-            date2DaysAgo.setDate(date2DaysAgo.getDate() - 2);
-            localStorage.setItem('workoutStartDate', date2DaysAgo.toISOString()); // Volta 2 dias
-            localStorage.setItem('update_2days_clear_v1', 'true'); // Marca para não limpar de novo amanhã
+        // --- ATUALIZAÇÃO: Zerar jornada e aplicar nova ficha (A/B/C/D) ---
+        if (!localStorage.getItem('update_new_ficha_abcd_v1')) {
+            localStorage.setItem('workoutHistory', '[]');
+            localStorage.setItem('workoutStartDate', new Date().toISOString());
+            localStorage.setItem('workoutCycleAcknowledged', '');
+            localStorage.removeItem('appWorkoutData'); // força uso do defaultWorkoutData
+            localStorage.removeItem('nextTab');
+            localStorage.removeItem('currentTab');
+            localStorage.setItem('update_new_ficha_abcd_v1', 'true');
+            // Remove flags antigas
+            localStorage.removeItem('update_2days_clear_v1');
         }
 
         let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
