@@ -355,7 +355,7 @@
                     // Detecta se o Firebase tem dados da ficha antiga — se sim, ignora tudo e força reset
                     const oldKeys = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glúteos', 'Costas e Tríceps', 'FULLbody', 'Posterior e Glút', 'FULL BODY'];
                     const firestoreHasOldData = d.workoutData && oldKeys.some(k => d.workoutData[k]);
-                    if (firestoreHasOldData || d.cycleReset_v2 !== true) {
+                    if (firestoreHasOldData) {
                         // Força nova ficha e zera jornada no Firestore
                         const newStart = new Date().toISOString();
                         startDate = newStart;
@@ -592,12 +592,8 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Calcula 3 meses (data final)
-            const endDate = new Date(start);
-            endDate.setMonth(endDate.getMonth() + 3);
-
-            // Cálculos exatos em dias
-            const totalDays = Math.round((endDate - start) / (1000 * 60 * 60 * 24));
+            // 90 dias fixos
+            const totalDays = 90;
             let passedDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
 
             if (passedDays < 0) passedDays = 0;
