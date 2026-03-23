@@ -351,6 +351,40 @@
                 const doc = await db.collection('users').doc(userId).collection('data').doc('main').get();
                 if (doc.exists) {
                     const d = doc.data();
+
+                    // Detecta se o Firebase tem dados da ficha antiga — se sim, ignora tudo e força reset
+                    const oldKeys = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glúteos', 'Costas e Tríceps', 'FULLbody', 'Posterior e Glút', 'FULL BODY'];
+                    const firestoreHasOldData = d.workoutData && oldKeys.some(k => d.workoutData[k]);
+                    if (firestoreHasOldData || d.cycleReset_v2 !== true) {
+                        // Força nova ficha e zera jornada no Firestore
+                        const newStart = new Date().toISOString();
+                        startDate = newStart;
+                        workoutData = defaultWorkoutData;
+                        workoutHistory = [];
+                        checkedState = {};
+                        nextTab = Object.keys(defaultWorkoutData)[0];
+                        currentTab = nextTab;
+                        _origSetItem('appWorkoutData', JSON.stringify(workoutData));
+                        _origSetItem('workoutStartDate', newStart);
+                        _origSetItem('workoutHistory', '[]');
+                        _origSetItem('appCheckedState', '{}');
+                        _origSetItem('nextTab', nextTab);
+                        _origSetItem('currentTab', currentTab);
+                        _origSetItem('workoutCycleAcknowledged', '');
+                        tabs = Object.keys(workoutData);
+                        // Salva imediatamente no Firestore com os dados novos + flag de reset
+                        db.collection('users').doc(userId).collection('data').doc('main').set({
+                            workoutData, checkedState, exerciseWeights, workoutHistory,
+                            startDate: newStart, currentTab, nextTab,
+                            weightHistoryData: {},
+                            theme: localStorage.getItem('theme') || 'light',
+                            cycleAcknowledged: null,
+                            cycleReset_v2: true,
+                            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(e => console.warn('[Firebase] Erro ao salvar reset:', e));
+                        return;
+                    }
+
                     if (d.workoutData) { 
                         const sorted = sortTabs(d.workoutData);
                         workoutData = (Object.keys(sorted).length > 0) ? sorted : defaultWorkoutData;
@@ -360,7 +394,7 @@
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
                     if (d.weightHistoryData) { weightHistoryData = d.weightHistoryData; _origSetItem('appWeightHistoryData', JSON.stringify(d.weightHistoryData)); }
-                    if (d.startDate && Object.keys(workoutData).some(k => ['Série A','Série B','Série C','Série D'].includes(k)) && localStorage.getItem('update_new_ficha_abcd_v2')) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
+                    if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
                     tabs = Object.keys(workoutData);
@@ -373,8 +407,6 @@
                         nextTab = tabs[0];
                     }
                     
-                    let dbCurr = d.currentTab;
-                    // User explicitly requested to ALWAYS open at the current progression step (nextTab)
                     currentTab = nextTab;
                     _origSetItem('currentTab', currentTab);
                 }
