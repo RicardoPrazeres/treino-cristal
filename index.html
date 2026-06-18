@@ -511,6 +511,11 @@
             const oldKeys = ['Quadríceps', 'Peito e Bíceps', 'Posterior e Glúteos', 'Costas e Tríceps', 'FULLbody'];
             if (oldKeys.some(k => data[k])) return {};
 
+            // Garante que a aba Pilates existe para quem tem cache antigo
+            if (!data['Pilates']) {
+                data['Pilates'] = defaultWorkoutData['Pilates'];
+            }
+
             const sorted = {};
             TAB_ORDER.forEach(key => { if (data[key]) sorted[key] = data[key]; });
             // Adiciona tabs extras que não estejam no TAB_ORDER (caso o usuário crie novos)
