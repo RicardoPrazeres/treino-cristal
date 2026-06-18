@@ -484,12 +484,24 @@
                 { id: 'd7', name: 'FLEXORA EM PÉ', sets: '4', reps: '10' },
                 { id: 'd8', name: 'PANTURRILHA', sets: '3', reps: 'Falha' },
                 { id: 'd9', name: 'BICICLETA', sets: '-', reps: '15min' }
+            ],
+            'Pilates': [
+                { id: 'p1', name: 'Segunda (Manhã)', sets: 'Horário', reps: '08:45-09:30' },
+                { id: 'p2', name: 'Segunda (Noite)', sets: 'Horário', reps: '16:45-17:15' },
+                { id: 'p3', name: 'Terça (Manhã)', sets: 'Horário', reps: '07:45-08:30' },
+                { id: 'p4', name: 'Terça (Noite)', sets: 'Horário', reps: '16:15-17:00' },
+                { id: 'p5', name: 'Quarta (Manhã)', sets: 'Horário', reps: '08:45-09:30' },
+                { id: 'p6', name: 'Quarta (Noite 1)', sets: 'Horário', reps: '16:45-17:15' },
+                { id: 'p7', name: 'Quarta (Noite 2)', sets: 'Horário', reps: '19:00-19:45' },
+                { id: 'p8', name: 'Quinta (Manhã)', sets: 'Horário', reps: '07:45-08:30' },
+                { id: 'p9', name: 'Sexta (Manhã)', sets: 'Horário', reps: '08:45-09:30' },
+                { id: 'p10', name: 'Sexta (Noite)', sets: 'Horário', reps: '16:15-17:15' }
             ]
         };
 
         // --- 2. STATE MANAGEMENT ---
         // Ordem fixa dos treinos — sempre respeitada independente do Firebase ou localStorage
-        const TAB_ORDER = ['Série A', 'Série B', 'Série C', 'Série D'];
+        const TAB_ORDER = ['Série A', 'Série B', 'Série C', 'Série D', 'Pilates'];
 
         function sortTabs(data) {
             // Migra chaves antigas (ficha velha -> nova A/B/C/D)
