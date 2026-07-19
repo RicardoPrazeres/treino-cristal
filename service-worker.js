@@ -1,5 +1,5 @@
 // Service Worker - Treinos Ricardo
-const CACHE_NAME = 'treinos-ricardo-v3';
+const CACHE_NAME = 'treinos-ricardo-v4';
 
 const LOCAL_ASSETS = [
   './',

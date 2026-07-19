@@ -47,3 +47,17 @@ test('renomear o próximo treino preserva a sequência', () => {
   assert.match(html, /const oldName = currentTab/);
   assert.match(html, /if \(nextTab === oldName\) nextTab = newName/);
 });
+
+test('painel editorial usa métricas reais e navegação móvel acessível', () => {
+  ['weekly-goal-value', 'hero-tab-name', 'weekly-chart', 'workout-section']
+    .forEach(id => assert.match(html, new RegExp(`id=["']${id}["']`)));
+  assert.match(html, /function renderDashboard\(\)/);
+  assert.match(html, /function startNextWorkout\(\)/);
+  assert.match(html, /aria-label="Navegação principal"/);
+});
+
+test('cache e manifesto usam a identidade visual atualizada', () => {
+  assert.equal(manifest.name, 'Treinos Cristal');
+  assert.equal(manifest.theme_color, '#f6f2ea');
+  assert.match(serviceWorker, /treinos-ricardo-v4/);
+});

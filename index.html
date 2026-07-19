@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#2563eb">
-    <title>Treinos💪🏽</title>
+    <meta name="theme-color" content="#f6f2ea">
+    <title>Treinos Cristal</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -45,13 +45,72 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
+        :root {
+            --canvas: #ece8df;
+            --page: #f6f2ea;
+            --surface: #fffdf8;
+            --ink: #202322;
+            --muted: #737671;
+            --line: #ddd9d0;
+            --blue: #2457d6;
+            --blue-soft: #dfe8ff;
+            --coral: #f07167;
+            --coral-soft: #fce3de;
+        }
+
+        .dark {
+            --canvas: #101211;
+            --page: #171917;
+            --surface: #20231f;
+            --ink: #f5f1e8;
+            --muted: #a7aaa4;
+            --line: #343832;
+            --blue-soft: #26385f;
+            --coral-soft: #4b302d;
+        }
+
+        * { box-sizing: border-box; }
+
+        .editorial-title,
+        .editorial-number {
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+
+        .app-page { background: var(--page); color: var(--ink); }
+        .surface-card { background: var(--surface); border-color: var(--line); }
+        .muted-copy { color: var(--muted); }
+        .eyebrow { color: var(--muted); letter-spacing: .16em; }
+        .metric-card { min-height: 132px; }
+        .metric-track { background: var(--line); }
+        .metric-fill { transition: width 700ms cubic-bezier(.22, 1, .36, 1); }
+        .hero-card { background: var(--blue); }
+        .hero-progress { background: rgba(255,255,255,.22); }
+        .hero-progress > span { transition: width 700ms cubic-bezier(.22, 1, .36, 1); }
+        .progress-column { background: var(--blue-soft); }
+        .progress-column span { transition: height 600ms cubic-bezier(.22, 1, .36, 1); }
+        .app-control { background: var(--surface); border-color: var(--line); color: var(--muted); }
+        .app-control:active, button:active { transform: scale(.98); }
+        .workout-tabs { background: color-mix(in srgb, var(--page) 92%, transparent); }
+        .exercise-surface { background: var(--surface); border-color: var(--line); }
+        .bottom-nav {
+            bottom: max(10px, env(safe-area-inset-bottom));
+            background: color-mix(in srgb, var(--surface) 92%, transparent);
+            border-color: var(--line);
+            box-shadow: 0 12px 40px rgba(32, 35, 34, .18);
+        }
+        .bottom-nav button { color: var(--muted); }
+        .bottom-nav button.active { color: var(--blue); }
+        .bottom-nav button.active .nav-icon { background: var(--blue-soft); }
+        .footer-actions-editorial { bottom: calc(88px + env(safe-area-inset-bottom)); }
+        .timer-editorial { bottom: calc(164px + env(safe-area-inset-bottom)); }
+
         .checkbox-custom {
             transition: all 0.2s ease-in-out;
         }
 
         .checkbox-custom.checked {
-            background-color: #10B981;
-            border-color: #10B981;
+            background-color: var(--coral);
+            border-color: var(--coral);
         }
 
         .no-scrollbar::-webkit-scrollbar {
@@ -66,6 +125,7 @@
         body {
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.3s;
+            background: var(--canvas);
         }
 
         input[type="number"]::-webkit-inner-spin-button,
@@ -76,6 +136,15 @@
 
         #journey-progress {
             transition: width 1s ease-in-out;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+            }
         }
 
         /* iPhone: ocupa área segura (notch/ilha dinâmica/barra home) */
@@ -91,22 +160,20 @@
     </style>
 </head>
 
-<body
-    class="bg-gray-100 dark:bg-darkbg text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
+<body class="text-gray-800 dark:text-gray-200 font-sans antialiased transition-colors duration-300">
 
     <!-- Tela de Login -->
-    <div id="login-screen" class="fixed inset-0 z-[200] flex flex-col justify-center items-center p-8"
-        style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);">
+    <div id="login-screen" class="fixed inset-0 z-[200] flex flex-col justify-center items-center p-8 bg-[#f6f2ea] dark:bg-[#171917]">
         <div class="text-center max-w-xs w-full">
             <div
-                class="w-28 h-28 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl overflow-hidden">
+                class="w-24 h-24 bg-white rounded-[24px] flex items-center justify-center mx-auto mb-7 shadow-xl overflow-hidden border border-[#ddd9d0]">
                 <img src="icons/icon-192.png" alt="Cristal Academia" class="w-full h-full object-cover">
             </div>
-            <h1 class="text-3xl font-black text-white mb-1 tracking-tight">Treinos Cristal</h1>
-            <p class="text-blue-200 mb-2 text-base font-medium">💪🏽 Academia Cristal</p>
-            <p class="text-blue-300 text-sm mb-8">Faça login para sincronizar seus treinos na nuvem</p>
+            <p class="eyebrow text-[10px] font-bold uppercase mb-2">Academia Cristal</p>
+            <h1 class="editorial-title text-[38px] leading-tight font-bold text-[var(--ink)] mb-3 tracking-[-.03em]">Seu treino,<br>no seu ritmo.</h1>
+            <p class="muted-copy text-sm mb-8">Entre para acompanhar sua evolução e manter seus treinos sincronizados.</p>
             <button id="google-login-btn" onclick="loginWithGoogle()"
-                class="w-full bg-white text-gray-700 font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center space-x-3 hover:bg-gray-50 active:scale-95 transition-all duration-150 text-base">
+                class="w-full bg-[var(--blue)] text-white font-bold py-4 px-6 rounded-2xl shadow-xl flex items-center justify-center space-x-3 active:scale-95 transition-all duration-150 text-base">
                 <svg width="22" height="22" viewBox="0 0 48 48">
                     <path fill="#FFC107"
                         d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
@@ -117,73 +184,116 @@
                     <path fill="#1976D2"
                         d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.5 5.5C41.6 35.7 44 30.3 44 24c0-1.3-.1-2.6-.4-3.9z" />
                 </svg>
-                <span>Entrar com Google</span>
+                <span>Continuar com Google</span>
             </button>
-            <p class="text-blue-400 text-xs mt-5">Seus dados ficam seguros e sincronizados em qualquer dispositivo</p>
+            <p class="muted-copy text-xs mt-5"><i class="fa-solid fa-lock mr-1"></i> Seus dados ficam seguros na nuvem</p>
         </div>
     </div>
 
-    <div id="app-wrapper"
-        class="max-w-md mx-auto bg-white dark:bg-darkbg min-h-screen relative shadow-2xl flex flex-col hidden">
+    <div id="app-wrapper" class="app-page max-w-md mx-auto min-h-screen relative shadow-2xl flex flex-col hidden">
 
-        <!-- Header -->
-        <header
-            class="bg-white/80 dark:bg-zinc-950/85 backdrop-blur-md text-slate-800 dark:text-zinc-100 p-5 rounded-b-[2rem] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] sticky top-0 z-30 border-b border-slate-100 dark:border-zinc-800/80 transition-colors duration-300">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent flex items-center">
-                    <i class="fa-solid fa-dumbbell text-indigo-500 mr-2 text-xl"></i>Treinos
-                </h1>
-                <div class="flex items-center space-x-3.5">
-                    <img id="user-avatar" src="" alt=""
-                        class="w-7 h-7 rounded-full border-2 border-indigo-400 hidden object-cover shadow-sm">
-                    <!-- Status de Sincronização -->
-                    <div id="sync-status" class="flex items-center text-emerald-500 transition-colors duration-300" title="Sincronizado com a nuvem">
-                        <i id="sync-icon" class="fa-solid fa-cloud-arrow-up text-base"></i>
+        <header class="px-5 pt-7 pb-5">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p id="greeting-text" class="muted-copy text-sm font-medium mb-1">Boa tarde,</p>
+                    <h1 id="user-name-display" class="editorial-title text-[38px] leading-none font-bold tracking-[-.03em]">Ricardo</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div id="sync-status" class="app-control w-10 h-10 rounded-full border flex items-center justify-center transition-colors" title="Sincronizado com a nuvem">
+                        <i id="sync-icon" class="fa-solid fa-cloud-arrow-up text-sm"></i>
                     </div>
-                    <button onclick="toggleTheme()" class="text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
-                        <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                    <button onclick="toggleTheme()" class="app-control w-10 h-10 rounded-full border transition" aria-label="Alternar tema">
+                        <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
                     </button>
-                    <button onclick="toggleHistory()" class="text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
-                        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                    <button onclick="logout()" class="app-control w-10 h-10 rounded-full border transition" aria-label="Sair da conta">
+                        <img id="user-avatar" src="" alt="Foto do perfil" class="w-full h-full rounded-full hidden object-cover">
+                        <i id="logout-fallback-icon" class="fa-solid fa-right-from-bracket text-sm"></i>
                     </button>
-                    <button onclick="toggleSettings()" class="text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors">
-                        <i class="fa-solid fa-gear text-lg"></i>
-                    </button>
-                    <button onclick="logout()" class="text-slate-400 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors" title="Sair da conta">
-                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Quadro de Jornada (Modificado com barra de progresso) -->
-            <div
-                class="flex justify-between items-center bg-slate-50 dark:bg-zinc-900/50 rounded-2xl p-3.5 relative overflow-hidden border border-slate-100 dark:border-zinc-800/60 shadow-inner">
-                <!-- Barra de progresso de 3 meses -->
-                <div id="journey-progress" class="absolute left-0 bottom-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500" style="width: 0%;"></div>
-
-                <div class="z-10 relative">
-                    <p class="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-wider font-extrabold" id="journey-title">Meta (3 Meses)</p>
-                    <p class="font-black text-slate-800 dark:text-zinc-100 text-base" id="days-passed-display">Dia 0 / 90</p>
-                </div>
-                <div class="text-right z-10 relative">
-                    <p class="text-[10px] text-slate-400 dark:text-zinc-500 uppercase tracking-wider font-extrabold">Hoje</p>
-                    <p class="font-black text-xs text-slate-700 dark:text-zinc-300" id="current-date-display"></p>
                 </div>
             </div>
         </header>
 
-        <!-- Navegação de Treinos -->
-        <div
-            class="px-2 pt-4 pb-2 border-b dark:border-gray-800 bg-white dark:bg-darkbg sticky top-[120px] z-20 transition-colors duration-300">
-            <div class="grid grid-cols-5 gap-1" id="tabs-container"></div>
-        </div>
+        <section id="dashboard-section" class="px-5 pb-6" aria-label="Resumo dos treinos">
+            <div class="grid grid-cols-2 gap-3 mb-8">
+                <article class="surface-card metric-card border rounded-[20px] p-4 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <p class="muted-copy text-xs font-semibold">Sua jornada</p>
+                        <i class="fa-regular fa-calendar text-[var(--blue)]"></i>
+                    </div>
+                    <p id="days-passed-display" class="editorial-number text-[32px] leading-none font-bold">0<span class="muted-copy text-lg">/90</span></p>
+                    <div class="metric-track h-1.5 rounded-full overflow-hidden">
+                        <div id="journey-progress" class="metric-fill h-full rounded-full bg-[var(--blue)]" style="width:0%"></div>
+                    </div>
+                    <p id="journey-title" class="muted-copy text-[10px] font-semibold">Ciclo de 3 meses</p>
+                </article>
+                <article class="surface-card metric-card border rounded-[20px] p-4 flex flex-col justify-between">
+                    <div class="flex items-center justify-between">
+                        <p class="muted-copy text-xs font-semibold">Meta semanal</p>
+                        <i class="fa-solid fa-bolt text-[var(--coral)]"></i>
+                    </div>
+                    <p id="weekly-goal-value" class="editorial-number text-[32px] leading-none font-bold">0<span class="muted-copy text-lg">/4</span></p>
+                    <div class="metric-track h-1.5 rounded-full overflow-hidden">
+                        <div id="weekly-goal-progress" class="metric-fill h-full rounded-full bg-[var(--coral)]" style="width:0%"></div>
+                    </div>
+                    <p class="muted-copy text-[10px] font-semibold">Treinos nos últimos 7 dias</p>
+                </article>
+            </div>
 
-        <!-- Lista de Exercícios -->
-        <main class="flex-1 overflow-y-auto p-4 pb-48 bg-gray-50 dark:bg-[#121212]" id="exercises-container"></main>
+            <div class="flex items-end justify-between mb-3">
+                <div>
+                    <p class="eyebrow text-[10px] font-bold uppercase mb-1">Seu próximo passo</p>
+                    <h2 class="editorial-title text-[27px] leading-tight font-bold">Treino de hoje</h2>
+                </div>
+                <p id="current-date-display" class="muted-copy text-xs font-semibold capitalize"></p>
+            </div>
+
+            <article class="hero-card text-white rounded-[24px] p-5 shadow-[0_18px_36px_rgba(36,87,214,.22)] mb-9">
+                <p class="text-[10px] uppercase tracking-[.18em] font-bold text-blue-100 mb-2">Pronto para você</p>
+                <div class="flex items-start justify-between gap-3 mb-1">
+                    <h3 id="hero-tab-name" class="editorial-title text-[30px] leading-tight font-bold">Série A</h3>
+                    <span id="hero-progress-value" class="bg-white/15 rounded-full px-2.5 py-1 text-[11px] font-bold">0%</span>
+                </div>
+                <p id="hero-workout-meta" class="text-blue-100 text-sm mb-5">0 exercícios · aprox. 45 min</p>
+                <div class="hero-progress h-1.5 rounded-full overflow-hidden mb-5">
+                    <span id="hero-progress-bar" class="block h-full bg-[var(--coral)] rounded-full" style="width:0%"></span>
+                </div>
+                <button onclick="startNextWorkout()" class="w-full bg-white text-[var(--blue)] rounded-2xl py-3.5 font-extrabold text-sm transition shadow-sm">
+                    <i class="fa-solid fa-play mr-2 text-xs"></i><span id="hero-cta-label">Começar treino</span>
+                </button>
+            </article>
+
+            <div id="progress-section" class="scroll-mt-4">
+                <div class="flex items-end justify-between mb-3">
+                    <div>
+                        <p class="eyebrow text-[10px] font-bold uppercase mb-1">Últimos 7 dias</p>
+                        <h2 class="editorial-title text-[27px] leading-tight font-bold">Progresso recente</h2>
+                    </div>
+                    <button onclick="toggleHistory()" class="text-[var(--blue)] text-xs font-bold">Ver detalhes</button>
+                </div>
+                <article class="surface-card border rounded-[20px] p-4">
+                    <div class="flex items-baseline justify-between mb-5">
+                        <p><span id="recent-workouts-value" class="editorial-number text-3xl font-bold">0</span> <span class="muted-copy text-xs font-semibold">treinos</span></p>
+                        <p id="recent-progress-copy" class="text-xs font-bold text-[var(--coral)]">Comece hoje</p>
+                    </div>
+                    <div id="weekly-chart" class="h-24 flex items-end justify-between gap-2" aria-label="Treinos realizados nos últimos sete dias"></div>
+                </article>
+            </div>
+        </section>
+
+        <section id="workout-section" class="scroll-mt-4">
+            <div class="px-5 pt-2 pb-3">
+                <p class="eyebrow text-[10px] font-bold uppercase mb-1">Sua ficha</p>
+                <h2 id="workout-section-title" class="editorial-title text-[29px] leading-tight font-bold">Exercícios</h2>
+            </div>
+            <div class="workout-tabs px-3 py-3 border-y border-[var(--line)] sticky top-0 z-20 backdrop-blur-xl">
+                <div class="grid grid-cols-5 gap-1.5" id="tabs-container"></div>
+            </div>
+            <main class="flex-1 p-4 pb-64" id="exercises-container"></main>
+        </section>
 
         <!-- Cronômetro Flutuante (Destacado) -->
         <div id="timer-bar"
-            class="fixed bottom-28 left-4 right-4 max-w-[360px] mx-auto bg-indigo-600 dark:bg-indigo-500 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(79,70,229,0.6)] hidden justify-between items-center z-50 border-2 border-indigo-400/50">
+            class="timer-editorial fixed left-4 right-4 max-w-[360px] mx-auto bg-[var(--blue)] text-white p-4 rounded-2xl shadow-2xl hidden justify-between items-center z-50 border border-white/20">
             <div class="flex items-center space-x-4">
                 <div class="bg-indigo-800/50 p-3 rounded-full flex justify-center items-center">
                     <i class="fa-solid fa-stopwatch text-2xl animate-pulse"></i>
@@ -205,16 +315,31 @@
 
         <!-- Botões Footer -->
         <div id="footer-actions"
-            class="fixed bottom-0 w-full max-w-md bg-white dark:bg-darkcard p-4 border-t dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 flex space-x-3 transition-colors duration-300">
+            class="footer-actions-editorial fixed left-0 right-0 mx-auto w-[calc(100%_-_32px)] max-w-[408px] surface-card p-2 border rounded-[20px] shadow-xl z-40 hidden space-x-2 transition-colors duration-300">
             <button onclick="startTimer(60)"
-                class="w-1/3 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold py-3 rounded-xl shadow-sm transition active:scale-[0.98] flex flex-col justify-center items-center text-sm">
-                <i class="fa-solid fa-stopwatch text-lg mb-1"></i> Timer 60s
+                class="w-1/3 bg-[var(--blue-soft)] text-[var(--blue)] font-bold py-3 rounded-xl transition flex justify-center items-center text-sm">
+                <i class="fa-solid fa-stopwatch mr-2"></i> 60s
             </button>
             <button onclick="finishWorkout()"
-                class="w-2/3 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-[0.98] flex flex-col justify-center items-center text-lg">
-                <span class="flex items-center"><i class="fa-solid fa-check-circle mr-2"></i> Finalizar</span>
+                class="w-2/3 bg-[var(--coral)] text-white font-bold py-3 rounded-xl shadow-sm transition flex justify-center items-center text-base">
+                <span class="flex items-center"><i class="fa-solid fa-check-circle mr-2"></i> Finalizar treino</span>
             </button>
         </div>
+
+        <nav class="bottom-nav fixed left-4 right-4 max-w-[408px] mx-auto h-[72px] rounded-[22px] border backdrop-blur-xl z-40 px-2 grid grid-cols-4" aria-label="Navegação principal">
+            <button id="nav-workout" onclick="navigateApp('workout')" class="active flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition">
+                <span class="nav-icon w-9 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-dumbbell"></i></span>Treino
+            </button>
+            <button id="nav-progress" onclick="navigateApp('progress')" class="flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition">
+                <span class="nav-icon w-9 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-chart-simple"></i></span>Progresso
+            </button>
+            <button id="nav-history" onclick="navigateApp('history')" class="flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition">
+                <span class="nav-icon w-9 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-clock-rotate-left"></i></span>Histórico
+            </button>
+            <button id="nav-settings" onclick="navigateApp('settings')" class="flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition">
+                <span class="nav-icon w-9 h-7 rounded-full flex items-center justify-center"><i class="fa-solid fa-sliders"></i></span>Ajustes
+            </button>
+        </nav>
 
         <!-- Modal de Conclusão dos 3 Meses -->
         <div id="completion-modal" class="fixed inset-0 bg-black/80 z-[70] hidden flex justify-center items-center p-4">
@@ -428,18 +553,19 @@
             const icon = document.getElementById('sync-icon');
             if (!el || !icon) return;
 
+            el.classList.remove('text-emerald-500', 'text-blue-500', 'text-amber-500');
             if (status === 'online') {
-                el.className = "flex items-center text-emerald-500 transition-colors duration-300";
+                el.classList.add('text-emerald-500');
                 el.title = "Sincronizado com a nuvem";
-                icon.className = "fa-solid fa-cloud-arrow-up text-base";
+                icon.className = "fa-solid fa-cloud-arrow-up text-sm";
             } else if (status === 'syncing') {
-                el.className = "flex items-center text-blue-500 transition-colors duration-300";
+                el.classList.add('text-blue-500');
                 el.title = "Sincronizando dados...";
-                icon.className = "fa-solid fa-arrows-rotate text-base fa-spin";
+                icon.className = "fa-solid fa-arrows-rotate text-sm fa-spin";
             } else if (status === 'offline') {
-                el.className = "flex items-center text-amber-500 transition-colors duration-300";
+                el.classList.add('text-amber-500');
                 el.title = "Modo Offline (Salvo localmente)";
-                icon.className = "fa-solid fa-cloud-slash text-base";
+                icon.className = "fa-solid fa-cloud-slash text-sm";
             }
         }
 
@@ -703,6 +829,7 @@
 
         let workoutHistory = JSON.parse(localStorage.getItem('workoutHistory')) || [];
         let startDate = localStorage.getItem('workoutStartDate');
+        let workoutSectionVisible = false;
 
         if (!startDate) {
             startDate = new Date().toISOString();
@@ -717,7 +844,15 @@
             renderTabs();
             renderExercises();
             renderHistory();
+            renderDashboard();
             setInterval(updateHeaderDates, 60000);
+
+            const workoutObserver = new IntersectionObserver(entries => {
+                workoutSectionVisible = entries[0].isIntersecting;
+                updateWorkoutActionsVisibility();
+                if (workoutSectionVisible) setActiveNav('workout');
+            }, { threshold: 0.08 });
+            workoutObserver.observe(document.getElementById('workout-section'));
 
             // Listeners de rede
             window.addEventListener('online', () => saveToFirestore());
@@ -730,7 +865,7 @@
             const isDark = localStorage.getItem('theme') === 'dark';
             if (isDark) {
                 document.documentElement.classList.add('dark');
-                document.getElementById('theme-icon').className = "fa-solid fa-sun text-xl text-yellow-300";
+                document.getElementById('theme-icon').className = "fa-solid fa-sun text-sm text-yellow-300";
             }
         }
 
@@ -740,18 +875,21 @@
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
-                icon.className = "fa-solid fa-moon text-xl text-blue-100";
+                icon.className = "fa-solid fa-moon text-sm";
             } else {
                 html.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
-                icon.className = "fa-solid fa-sun text-xl text-yellow-300";
+                icon.className = "fa-solid fa-sun text-sm text-yellow-300";
             }
         }
 
         // --- ATUALIZAÇÃO DO HEADER E META 3 MESES ---
         function updateHeaderDates() {
             const now = new Date();
-            document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).toUpperCase();
+            document.getElementById('current-date-display').innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }).replace('.', '');
+
+            const hour = now.getHours();
+            document.getElementById('greeting-text').innerText = `${hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite'},`;
 
             const start = new Date(startDate);
             start.setHours(0, 0, 0, 0);
@@ -775,16 +913,122 @@
 
             // UI Textos
             if (remainingDays > 0) {
-                document.getElementById('journey-title').innerText = "Meta (3 Meses)";
-                document.getElementById('days-passed-display').innerText = `Dia ${passedDays} / ${totalDays}`;
-                progressElement.classList.replace('bg-yellow-400', 'bg-green-400');
+                document.getElementById('journey-title').innerText = "Ciclo de 3 meses";
+                document.getElementById('days-passed-display').innerHTML = `${passedDays}<span class="muted-copy text-lg">/${totalDays}</span>`;
             } else {
                 document.getElementById('journey-title').innerText = "Ciclo Concluído";
-                document.getElementById('days-passed-display').innerText = `Dia ${passedDays} (Bônus)`;
-                progressElement.classList.replace('bg-green-400', 'bg-yellow-400');
+                document.getElementById('days-passed-display').innerHTML = `${passedDays}<span class="muted-copy text-lg"> dias</span>`;
 
                 checkJourneyCompletion();
             }
+        }
+
+        function workoutDateKey(date) {
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function countWorkoutsBetween(start, end) {
+            return workoutHistory.filter(item => {
+                if (item.type !== 'workout' || typeof item.date !== 'string') return false;
+                const [day, month, year] = item.date.split('/').map(Number);
+                if (!day || !month || !year) return false;
+                const date = new Date(year, month - 1, day);
+                return date >= start && date <= end;
+            }).length;
+        }
+
+        function renderDashboard() {
+            const now = new Date();
+            now.setHours(23, 59, 59, 999);
+            const sevenDaysAgo = new Date(now);
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+            sevenDaysAgo.setHours(0, 0, 0, 0);
+            const previousStart = new Date(sevenDaysAgo);
+            previousStart.setDate(previousStart.getDate() - 7);
+            const previousEnd = new Date(sevenDaysAgo);
+            previousEnd.setMilliseconds(-1);
+
+            const recentCount = countWorkoutsBetween(sevenDaysAgo, now);
+            const previousCount = countWorkoutsBetween(previousStart, previousEnd);
+            const weeklyTarget = 4;
+            document.getElementById('weekly-goal-value').innerHTML = `${recentCount}<span class="muted-copy text-lg">/${weeklyTarget}</span>`;
+            document.getElementById('weekly-goal-progress').style.width = `${Math.min(100, (recentCount / weeklyTarget) * 100)}%`;
+            document.getElementById('recent-workouts-value').innerText = recentCount;
+
+            const comparison = document.getElementById('recent-progress-copy');
+            if (recentCount === 0) comparison.innerText = 'Comece hoje';
+            else if (previousCount === 0) comparison.innerText = 'Boa sequência';
+            else {
+                const change = Math.round(((recentCount - previousCount) / previousCount) * 100);
+                comparison.innerText = change >= 0 ? `+${change}% na semana` : `${change}% na semana`;
+            }
+
+            const nextExercises = workoutData[nextTab] || [];
+            const completed = (checkedState[nextTab] || []).length;
+            const percent = nextExercises.length ? Math.round((completed / nextExercises.length) * 100) : 0;
+            document.getElementById('hero-tab-name').innerText = nextTab;
+            document.getElementById('hero-workout-meta').innerText = `${nextExercises.length} exercícios · aprox. ${Math.max(25, nextExercises.length * 5 + 7)} min`;
+            document.getElementById('hero-progress-value').innerText = `${percent}%`;
+            document.getElementById('hero-progress-bar').style.width = `${percent}%`;
+            document.getElementById('hero-cta-label').innerText = completed ? 'Continuar treino' : 'Começar treino';
+            document.getElementById('workout-section-title').innerText = `${currentTab} · Exercícios`;
+
+            const chart = document.getElementById('weekly-chart');
+            chart.innerHTML = '';
+            const dates = [];
+            for (let offset = 6; offset >= 0; offset--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - offset);
+                dates.push(date);
+            }
+            const counts = dates.map(date => workoutHistory.filter(item => item.type === 'workout' && item.date === workoutDateKey(date)).length);
+            const maxCount = Math.max(1, ...counts);
+            dates.forEach((date, index) => {
+                const column = document.createElement('div');
+                column.className = 'flex-1 h-full flex flex-col items-center justify-end gap-2';
+                const track = document.createElement('div');
+                track.className = 'progress-column w-full max-w-6 flex-1 rounded-full overflow-hidden flex items-end';
+                const bar = document.createElement('span');
+                bar.className = `block w-full rounded-full ${counts[index] ? 'bg-[var(--blue)]' : 'bg-transparent'}`;
+                bar.style.height = `${counts[index] ? Math.max(32, (counts[index] / maxCount) * 100) : 0}%`;
+                const label = document.createElement('span');
+                label.className = 'muted-copy text-[9px] font-bold uppercase';
+                label.innerText = date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '').slice(0, 3);
+                track.appendChild(bar);
+                column.append(track, label);
+                chart.appendChild(column);
+            });
+        }
+
+        function setActiveNav(name) {
+            document.querySelectorAll('.bottom-nav button').forEach(button => button.classList.remove('active'));
+            const active = document.getElementById(`nav-${name}`);
+            if (active) active.classList.add('active');
+        }
+
+        function navigateApp(destination) {
+            if (destination === 'history') {
+                toggleHistory();
+                setActiveNav('history');
+                return;
+            }
+            if (destination === 'settings') {
+                toggleSettings();
+                setActiveNav('settings');
+                return;
+            }
+            const target = document.getElementById(destination === 'progress' ? 'progress-section' : 'workout-section');
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setActiveNav(destination);
+        }
+
+        function startNextWorkout() {
+            currentTab = nextTab;
+            localStorage.setItem('currentTab', currentTab);
+            renderTabs();
+            renderExercises();
+            document.getElementById('workout-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setActiveNav('workout');
         }
 
         function checkJourneyCompletion() {
@@ -826,20 +1070,16 @@
                 const isSelected = tab === currentTab;
                 const btn = document.createElement('button');
 
-                let cls = 'px-2 py-3 rounded-2xl text-[11px] font-bold transition-all duration-300 ease-in-out text-center leading-tight active:scale-95 shadow-sm ';
+                let cls = 'px-1.5 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-200 text-center leading-tight active:scale-95 ';
 
                 if (isSelected && isNext) {
-                    // Selecionado E é o próximo: verde esmeralda vibrante
-                    cls += 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-emerald-200 dark:shadow-none ring-2 ring-emerald-300 dark:ring-emerald-700 w-full';
+                    cls += 'bg-[var(--blue)] text-white shadow-sm w-full';
                 } else if (isSelected && !isNext) {
-                    // Selecionado mas não é o próximo: violeta/indigo
-                    cls += 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-indigo-200 dark:shadow-none w-full';
+                    cls += 'bg-[var(--ink)] text-[var(--surface)] shadow-sm w-full';
                 } else if (isNext) {
-                    // Próximo mas não selecionado: verde esmeralda suave
-                    cls += 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 w-full';
+                    cls += 'bg-[var(--blue-soft)] text-[var(--blue)] border border-[var(--blue)]/20 w-full';
                 } else {
-                    // Outros treinos: cinza minimalista
-                    cls += 'bg-slate-50 dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-100 dark:border-zinc-800/50 w-full';
+                    cls += 'surface-card muted-copy border w-full';
                 }
 
                 btn.className = cls;
@@ -860,6 +1100,7 @@
                 };
                 container.appendChild(btn);
             });
+            renderDashboard();
         }
 
         function renderExercises() {
@@ -874,16 +1115,16 @@
 
                 if (currentTab === 'Pilates') {
                     // Design informativo, sem botão de check, sem input de peso
-                    card.className = `bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-800 mb-3`;
+                    card.className = `exercise-surface p-4 rounded-[18px] border mb-3`;
                     card.innerHTML = `
                         <div class="flex items-center">
-                            <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-800/50 flex items-center justify-center mr-4 flex-shrink-0">
-                                <i class="fa-solid fa-calendar-day text-indigo-500 dark:text-indigo-300 text-lg"></i>
+                            <div class="w-12 h-12 rounded-full bg-[var(--blue-soft)] flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fa-solid fa-calendar-day text-[var(--blue)] text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="font-bold text-indigo-900 dark:text-indigo-100 text-[16px]">${escapeHtml(ex.name)}</h3>
+                                <h3 class="font-bold text-[var(--ink)] text-[16px]">${escapeHtml(ex.name)}</h3>
                                 <div class="mt-1 flex items-center">
-                                    <span class="bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 text-xs font-bold px-2 py-1 rounded-md">
+                                    <span class="bg-[var(--blue-soft)] text-[var(--blue)] text-xs font-bold px-2 py-1 rounded-md">
                                         <i class="fa-regular fa-clock mr-1"></i> ${escapeHtml(ex.reps)}
                                     </span>
                                 </div>
@@ -894,36 +1135,36 @@
                     const isChecked = checkedState[currentTab] && checkedState[currentTab].includes(ex.id);
                     const weight = exerciseWeights[ex.id] || '';
 
-                    card.className = `bg-white dark:bg-darkcard p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mb-3 transition-all duration-200 ${isChecked ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : ''}`;
+                    card.className = `exercise-surface p-4 rounded-[18px] border mb-3 transition-all duration-200 ${isChecked ? 'opacity-60' : ''}`;
 
                     const rest = ex.restTime || 60;
                     card.innerHTML = `
                         <div class="flex items-center justify-between cursor-pointer" data-action="toggle-exercise">
                             <div class="flex-1 pr-4">
-                                <h3 class="font-bold text-gray-800 dark:text-gray-200 ${isChecked ? 'line-through text-gray-400 dark:text-gray-500' : ''} text-[15px]">${escapeHtml(ex.name)}</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 font-medium flex items-center flex-wrap gap-y-1.5 gap-x-3">
-                                    <span class="flex items-center"><i class="fa-solid fa-repeat text-blue-400 mr-1"></i> Séries: <span class="text-gray-700 dark:text-gray-300 font-bold ml-1">${escapeHtml(ex.sets)}</span></span>
-                                    <span class="flex items-center"><i class="fa-solid fa-circle-play text-blue-400 mr-1"></i> Reps: <span class="text-gray-700 dark:text-gray-300 font-bold ml-1">${escapeHtml(ex.reps)}</span></span>
-                                    <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded flex items-center whitespace-nowrap shadow-sm border border-indigo-100/30 dark:border-indigo-900/30">
+                                <h3 class="font-bold text-[var(--ink)] ${isChecked ? 'line-through muted-copy' : ''} text-[15px]">${escapeHtml(ex.name)}</h3>
+                                <p class="muted-copy text-xs mt-1.5 font-medium flex items-center flex-wrap gap-y-1.5 gap-x-3">
+                                    <span class="flex items-center"><i class="fa-solid fa-repeat text-[var(--blue)] mr-1"></i> Séries: <span class="text-[var(--ink)] font-bold ml-1">${escapeHtml(ex.sets)}</span></span>
+                                    <span class="flex items-center"><i class="fa-solid fa-circle-play text-[var(--blue)] mr-1"></i> Reps: <span class="text-[var(--ink)] font-bold ml-1">${escapeHtml(ex.reps)}</span></span>
+                                    <span class="text-[10px] text-[var(--coral)] font-semibold bg-[var(--coral-soft)] px-1.5 py-0.5 rounded flex items-center whitespace-nowrap">
                                         <i class="fa-solid fa-stopwatch mr-1 animate-pulse"></i> ${escapeHtml(rest)}s
                                     </span>
                                 </p>
                             </div>
                             <div class="flex-shrink-0">
-                                <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center checkbox-custom ${isChecked ? 'checked border-green-500 bg-green-500' : 'border-gray-300 dark:border-gray-600 bg-transparent'}">
+                                <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center checkbox-custom ${isChecked ? 'checked' : 'border-[var(--line)] bg-transparent'}">
                                     <i class="fa-solid fa-check text-white text-sm ${isChecked ? 'block' : 'hidden'}"></i>
                                 </div>
                             </div>
                         </div>
                         <!-- Separador Input de Carga -->
-                        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                        <div class="mt-3 pt-3 border-t border-[var(--line)] flex items-center justify-between">
                             <div class="flex items-center flex-1">
-                                <i class="fa-solid fa-weight-hanging text-gray-400 mr-2 text-sm"></i>
+                                <i class="fa-solid fa-weight-hanging muted-copy mr-2 text-sm"></i>
                                 <input type="text" placeholder="Carga (ex: 20kg)" value="${escapeHtml(weight)}"
                                     data-action="save-weight"
-                                    class="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1 w-full max-w-[120px] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 transition-colors">
+                                    class="text-sm bg-transparent border border-[var(--line)] rounded-lg px-2 py-1.5 w-full max-w-[130px] text-[var(--ink)] focus:outline-none focus:border-[var(--blue)] transition-colors">
                             </div>
-                            <button data-action="show-history" class="text-blue-500 hover:text-blue-600 dark:text-blue-400 px-2 py-1 flex items-center text-xs font-semibold bg-blue-50/50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-900 transition-colors">
+                            <button data-action="show-history" class="text-[var(--blue)] px-2 py-1.5 flex items-center text-xs font-semibold bg-[var(--blue-soft)] rounded-lg transition-colors">
                                 <i class="fa-solid fa-chart-line mr-1"></i> Histórico
                             </button>
                         </div>
@@ -945,14 +1186,16 @@
             }, 50);
 
             // Toggle footer visibility based on Pilates
+            updateWorkoutActionsVisibility();
+            renderDashboard();
+        }
+
+        function updateWorkoutActionsVisibility() {
             const footerActions = document.getElementById('footer-actions');
-            if (footerActions) {
-                if (currentTab === 'Pilates') {
-                    footerActions.classList.add('hidden');
-                } else {
-                    footerActions.classList.remove('hidden');
-                }
-            }
+            if (!footerActions) return;
+            const shouldShow = workoutSectionVisible && currentTab !== 'Pilates';
+            footerActions.classList.toggle('hidden', !shouldShow);
+            footerActions.classList.toggle('flex', shouldShow);
         }
 
         // --- LÓGICA DE TEMPO E HISTÓRICO DE EXERCÍCIOS ---
@@ -1641,10 +1884,13 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                const displayName = (user.displayName || 'Ricardo').trim().split(/\s+/)[0];
+                document.getElementById('user-name-display').innerText = displayName;
                 const avatar = document.getElementById('user-avatar');
                 if (avatar && user.photoURL) {
                     avatar.src = user.photoURL;
                     avatar.classList.remove('hidden');
+                    document.getElementById('logout-fallback-icon').classList.add('hidden');
                 }
                 await loadFromFirestore(user.uid);
                 document.getElementById('login-screen').classList.add('hidden');

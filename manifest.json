@@ -1,12 +1,12 @@
 {
-  "name": "Treinos Ricardo",
+  "name": "Treinos Cristal",
   "short_name": "Treinos",
   "description": "App de controle de treinos na academia",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#2563eb",
-  "theme_color": "#2563eb",
+  "background_color": "#f6f2ea",
+  "theme_color": "#f6f2ea",
   "lang": "pt-BR",
   "scope": "./",
   "icons": [
