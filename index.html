@@ -501,6 +501,10 @@
                     if (d.exerciseWeights) { exerciseWeights = d.exerciseWeights; _origSetItem('appWeights', JSON.stringify(d.exerciseWeights)); }
                     if (d.workoutHistory) { workoutHistory = d.workoutHistory; _origSetItem('workoutHistory', JSON.stringify(d.workoutHistory)); }
                     if (d.weightHistoryData) { weightHistoryData = d.weightHistoryData; _origSetItem('appWeightHistoryData', JSON.stringify(d.weightHistoryData)); }
+                    if (typeof d.autoStartTimer === 'boolean') {
+                        autoStartTimer = d.autoStartTimer;
+                        _origSetItem('autoStartTimer', d.autoStartTimer ? 'true' : 'false');
+                    }
                     if (d.startDate) { startDate = d.startDate; _origSetItem('workoutStartDate', d.startDate); }
                     if (d.theme) _origSetItem('theme', d.theme);
                     if (d.cycleAcknowledged) _origSetItem('workoutCycleAcknowledged', d.cycleAcknowledged);
@@ -534,7 +538,7 @@
             }
             updateSyncStatus('syncing');
             db.collection('users').doc(currentUser.uid).collection('data').doc('main').set({
-                workoutData, checkedState, exerciseWeights, workoutHistory, startDate, currentTab, nextTab, weightHistoryData,
+                workoutData, checkedState, exerciseWeights, workoutHistory, startDate, currentTab, nextTab, weightHistoryData, autoStartTimer,
                 theme: localStorage.getItem('theme') || 'light',
                 cycleAcknowledged: localStorage.getItem('workoutCycleAcknowledged') || null,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
@@ -546,9 +550,22 @@
             });
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"]/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;'
+            })[char]);
+        }
+
         // Auto-sync: intercept localStorage writes
         const _origSetItem = localStorage.setItem.bind(localStorage);
-        const _syncKeys = ['appWorkoutData', 'appCheckedState', 'appWeights', 'workoutHistory', 'workoutStartDate', 'workoutCycleAcknowledged', 'theme'];
+        const _syncKeys = [
+            'appWorkoutData', 'appCheckedState', 'appWeights', 'appWeightHistoryData',
+            'workoutHistory', 'workoutStartDate', 'workoutCycleAcknowledged',
+            'currentTab', 'nextTab', 'autoStartTimer', 'theme'
+        ];
         let _syncTimer = null;
         localStorage.setItem = function (key, value) {
             _origSetItem(key, value);
@@ -703,7 +720,7 @@
             setInterval(updateHeaderDates, 60000);
 
             // Listeners de rede
-            window.addEventListener('online', () => updateSyncStatus('online'));
+            window.addEventListener('online', () => saveToFirestore());
             window.addEventListener('offline', () => updateSyncStatus('offline'));
             // Inicializa status
             updateSyncStatus(navigator.onLine ? 'online' : 'offline');
@@ -829,9 +846,11 @@
 
                 // Ícone de "próximo" para o tab que vem a seguir
                 if (isNext) {
-                    btn.innerHTML = `<i class="fa-solid fa-play text-[9px] block mb-0.5 opacity-80 animate-pulse"></i>${tab}`;
+                    const icon = document.createElement('i');
+                    icon.className = 'fa-solid fa-play text-[9px] block mb-0.5 opacity-80 animate-pulse';
+                    btn.append(icon, document.createTextNode(tab));
                 } else {
-                    btn.innerText = tab;
+                    btn.textContent = tab;
                 }
 
                 btn.onclick = () => {
@@ -862,10 +881,10 @@
                                 <i class="fa-solid fa-calendar-day text-indigo-500 dark:text-indigo-300 text-lg"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="font-bold text-indigo-900 dark:text-indigo-100 text-[16px]">${ex.name}</h3>
+                                <h3 class="font-bold text-indigo-900 dark:text-indigo-100 text-[16px]">${escapeHtml(ex.name)}</h3>
                                 <div class="mt-1 flex items-center">
                                     <span class="bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 text-xs font-bold px-2 py-1 rounded-md">
-                                        <i class="fa-regular fa-clock mr-1"></i> ${ex.reps}
+                                        <i class="fa-regular fa-clock mr-1"></i> ${escapeHtml(ex.reps)}
                                     </span>
                                 </div>
                             </div>
@@ -879,14 +898,14 @@
 
                     const rest = ex.restTime || 60;
                     card.innerHTML = `
-                        <div class="flex items-center justify-between cursor-pointer" onclick="toggleExercise('${ex.id}')">
+                        <div class="flex items-center justify-between cursor-pointer" data-action="toggle-exercise">
                             <div class="flex-1 pr-4">
-                                <h3 class="font-bold text-gray-800 dark:text-gray-200 ${isChecked ? 'line-through text-gray-400 dark:text-gray-500' : ''} text-[15px]">${ex.name}</h3>
+                                <h3 class="font-bold text-gray-800 dark:text-gray-200 ${isChecked ? 'line-through text-gray-400 dark:text-gray-500' : ''} text-[15px]">${escapeHtml(ex.name)}</h3>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1.5 font-medium flex items-center flex-wrap gap-y-1.5 gap-x-3">
-                                    <span class="flex items-center"><i class="fa-solid fa-repeat text-blue-400 mr-1"></i> Séries: <span class="text-gray-700 dark:text-gray-300 font-bold ml-1">${ex.sets}</span></span>
-                                    <span class="flex items-center"><i class="fa-solid fa-circle-play text-blue-400 mr-1"></i> Reps: <span class="text-gray-700 dark:text-gray-300 font-bold ml-1">${ex.reps}</span></span>
+                                    <span class="flex items-center"><i class="fa-solid fa-repeat text-blue-400 mr-1"></i> Séries: <span class="text-gray-700 dark:text-gray-300 font-bold ml-1">${escapeHtml(ex.sets)}</span></span>
+                                    <span class="flex items-center"><i class="fa-solid fa-circle-play text-blue-400 mr-1"></i> Reps: <span class="text-gray-700 dark:text-gray-300 font-bold ml-1">${escapeHtml(ex.reps)}</span></span>
                                     <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded flex items-center whitespace-nowrap shadow-sm border border-indigo-100/30 dark:border-indigo-900/30">
-                                        <i class="fa-solid fa-stopwatch mr-1 animate-pulse"></i> ${rest}s
+                                        <i class="fa-solid fa-stopwatch mr-1 animate-pulse"></i> ${escapeHtml(rest)}s
                                     </span>
                                 </p>
                             </div>
@@ -900,15 +919,22 @@
                         <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                             <div class="flex items-center flex-1">
                                 <i class="fa-solid fa-weight-hanging text-gray-400 mr-2 text-sm"></i>
-                                <input type="text" placeholder="Carga (ex: 20kg)" value="${weight}" 
-                                    onchange="saveWeight('${ex.id}', this.value)" 
+                                <input type="text" placeholder="Carga (ex: 20kg)" value="${escapeHtml(weight)}"
+                                    data-action="save-weight"
                                     class="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1 w-full max-w-[120px] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 transition-colors">
                             </div>
-                            <button onclick="showWeightHistory('${ex.id}', '${ex.name}')" class="text-blue-500 hover:text-blue-600 dark:text-blue-400 px-2 py-1 flex items-center text-xs font-semibold bg-blue-50/50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-900 transition-colors">
+                            <button data-action="show-history" class="text-blue-500 hover:text-blue-600 dark:text-blue-400 px-2 py-1 flex items-center text-xs font-semibold bg-blue-50/50 dark:bg-blue-900/20 rounded-md border border-blue-100 dark:border-blue-900 transition-colors">
                                 <i class="fa-solid fa-chart-line mr-1"></i> Histórico
                             </button>
                         </div>
                     `;
+
+                    card.querySelector('[data-action="toggle-exercise"]')
+                        .addEventListener('click', () => toggleExercise(ex.id));
+                    card.querySelector('[data-action="save-weight"]')
+                        .addEventListener('change', event => saveWeight(ex.id, event.target.value));
+                    card.querySelector('[data-action="show-history"]')
+                        .addEventListener('click', () => showWeightHistory(ex.id, ex.name));
                 }
                 container.appendChild(card);
             });
@@ -1215,7 +1241,7 @@
             localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
             stopTimer();
 
-            const finished = currentTab;
+            const finished = nextTab;
             advanceTab();
 
             renderTabs();
@@ -1249,20 +1275,20 @@
                         <div class="flex justify-between w-full items-center">
                             <div>
                                 <h4 class="font-bold text-gray-800 dark:text-gray-200 flex items-center text-sm sm:text-base">
-                                    ${isRest ? '<i class="fa-solid fa-bed text-blue-400 mr-2"></i>' : ''} ${item.tabName}
+                                    ${isRest ? '<i class="fa-solid fa-bed text-blue-400 mr-2"></i>' : ''} ${escapeHtml(item.tabName)}
                                     ${isComplete ? '<i class="fa-solid fa-star text-yellow-500 text-xs ml-2"></i>' : ''}
                                 </h4>
-                                <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">${item.date} às ${item.time} ${item.duration && item.duration !== '0 min' ? ` • <i class="fa-regular fa-clock"></i> ${item.duration}` : ''}</p>
+                                <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">${escapeHtml(item.date)} às ${escapeHtml(item.time)} ${item.duration && item.duration !== '0 min' ? ` • <i class="fa-regular fa-clock"></i> ${escapeHtml(item.duration)}` : ''}</p>
                             </div>
                             <div class="flex flex-col items-end shrink-0">
-                                ${!isRest ? `<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded font-bold ml-2">${item.exercisesDone}/${item.totalExercises}</span>` : ''}
+                                ${!isRest ? `<span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded font-bold ml-2">${escapeHtml(item.exercisesDone)}/${escapeHtml(item.totalExercises)}</span>` : ''}
                             </div>
                         </div>`;
                 
                 if (item.notes) {
                     html += `
                         <div class="mt-2 text-xs bg-white dark:bg-gray-900 p-2 rounded border-l-2 border-indigo-400 text-gray-600 dark:text-gray-300 w-full italic">
-                            <i class="fa-solid fa-quote-left text-gray-400 mr-1 opacity-50"></i> ${item.notes}
+                            <i class="fa-solid fa-quote-left text-gray-400 mr-1 opacity-50"></i> ${escapeHtml(item.notes)}
                         </div>
                     `;
                 }
@@ -1333,14 +1359,18 @@
                 const item = document.createElement('div');
                 item.className = "flex justify-between items-center bg-slate-50 dark:bg-zinc-900 p-2.5 rounded-xl border border-slate-100 dark:border-zinc-800/50 text-sm hover:border-slate-200 dark:hover:border-zinc-700 transition-all";
                 item.innerHTML = `
-                    <div class="truncate flex-1 font-semibold text-slate-700 dark:text-zinc-200">${ex.name}</div>
+                    <div class="truncate flex-1 font-semibold text-slate-700 dark:text-zinc-200">${escapeHtml(ex.name)}</div>
                     <div class="flex space-x-1.5 ml-2">
-                        <button onclick="editExerciseInline('${ex.id}')" class="p-1 text-slate-400 hover:text-indigo-500" title="Editar Exercício"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="moveExercise(${index}, -1)" class="p-1 text-slate-400 hover:text-indigo-500"><i class="fa-solid fa-arrow-up"></i></button>
-                        <button onclick="moveExercise(${index}, 1)" class="p-1 text-slate-400 hover:text-indigo-500"><i class="fa-solid fa-arrow-down"></i></button>
-                        <button onclick="removeExercise('${ex.id}')" class="p-1 text-slate-400 hover:text-red-500 ml-1"><i class="fa-solid fa-trash"></i></button>
+                        <button data-action="edit" class="p-1 text-slate-400 hover:text-indigo-500" title="Editar Exercício"><i class="fa-solid fa-pen"></i></button>
+                        <button data-action="up" class="p-1 text-slate-400 hover:text-indigo-500" title="Mover para cima"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button data-action="down" class="p-1 text-slate-400 hover:text-indigo-500" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button data-action="remove" class="p-1 text-slate-400 hover:text-red-500 ml-1" title="Remover exercício"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
+                item.querySelector('[data-action="edit"]').addEventListener('click', () => editExerciseInline(ex.id));
+                item.querySelector('[data-action="up"]').addEventListener('click', () => moveExercise(index, -1));
+                item.querySelector('[data-action="down"]').addEventListener('click', () => moveExercise(index, 1));
+                item.querySelector('[data-action="remove"]').addEventListener('click', () => removeExercise(ex.id));
                 list.appendChild(item);
             });
         }
@@ -1462,6 +1492,7 @@
         }
 
         function saveRenameTab() {
+            const oldName = currentTab;
             const newName = document.getElementById('rename-tab-input').value.trim();
             if (!newName || newName === currentTab) {
                 cancelRenameTab();
@@ -1485,15 +1516,15 @@
             workoutData = newWorkoutData;
             localStorage.setItem('appWorkoutData', JSON.stringify(workoutData));
 
-            if (checkedState[currentTab]) {
-                checkedState[newName] = checkedState[currentTab];
-                delete checkedState[currentTab];
+            if (checkedState[oldName]) {
+                checkedState[newName] = checkedState[oldName];
+                delete checkedState[oldName];
                 localStorage.setItem('appCheckedState', JSON.stringify(checkedState));
             }
 
             tabs = Object.keys(workoutData);
             currentTab = newName;
-            if (nextTab === currentTab || nextTab === newName) nextTab = newName;
+            if (nextTab === oldName) nextTab = newName;
             localStorage.setItem('nextTab', nextTab);
 
             document.getElementById('rename-tab-form').classList.add('hidden');
@@ -1508,6 +1539,7 @@
         function exportData() {
             const dataToSave = {
                 workoutData, checkedState, exerciseWeights, workoutHistory, startDate,
+                currentTab, nextTab, weightHistoryData, autoStartTimer,
                 acknowledged: localStorage.getItem('workoutCycleAcknowledged')
             };
             const blob = new Blob([JSON.stringify(dataToSave)], { type: "application/json" });
@@ -1518,6 +1550,7 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+            URL.revokeObjectURL(url);
             showToast("Backup baixado com sucesso!");
         }
 
@@ -1525,23 +1558,57 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            if (file.size > 2 * 1024 * 1024) {
+                alert("O arquivo de backup excede o limite de 2 MB.");
+                event.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data.workoutData) {
+                    const isRecord = value => value && typeof value === 'object' && !Array.isArray(value);
+                    const forbiddenNames = new Set(['__proto__', 'prototype', 'constructor']);
+                    const workoutEntries = isRecord(data.workoutData) ? Object.entries(data.workoutData) : [];
+                    const hasValidWorkoutData = workoutEntries.length > 0
+                        && workoutEntries.length <= 50
+                        && workoutEntries.every(([tabName, exercises]) =>
+                            !forbiddenNames.has(tabName)
+                            && tabName.length <= 80
+                            && Array.isArray(exercises)
+                            && exercises.length <= 200
+                            && exercises.every(exercise =>
+                                isRecord(exercise)
+                                && typeof exercise.id === 'string'
+                                && typeof exercise.name === 'string'
+                                && exercise.id.length <= 100
+                                && exercise.name.length <= 200
+                            )
+                        );
+
+                    if (hasValidWorkoutData) {
                         // Update in-memory state
                         workoutData = data.workoutData;
-                        checkedState = data.checkedState || {};
-                        exerciseWeights = data.exerciseWeights || {};
-                        workoutHistory = data.workoutHistory || [];
+                        checkedState = isRecord(data.checkedState) ? data.checkedState : {};
+                        exerciseWeights = isRecord(data.exerciseWeights) ? data.exerciseWeights : {};
+                        workoutHistory = Array.isArray(data.workoutHistory) ? data.workoutHistory : [];
+                        weightHistoryData = isRecord(data.weightHistoryData) ? data.weightHistoryData : {};
+                        autoStartTimer = data.autoStartTimer !== false;
                         if (data.startDate) startDate = data.startDate;
+                        tabs = Object.keys(workoutData);
+                        nextTab = tabs.includes(data.nextTab) ? data.nextTab : tabs.find(tab => tab !== 'Pilates') || tabs[0];
+                        currentTab = tabs.includes(data.currentTab) ? data.currentTab : nextTab;
 
                         // Save to localStorage (bypass auto-sync interceptor)
                         _origSetItem('appWorkoutData', JSON.stringify(workoutData));
                         _origSetItem('appCheckedState', JSON.stringify(checkedState));
                         _origSetItem('appWeights', JSON.stringify(exerciseWeights));
                         _origSetItem('workoutHistory', JSON.stringify(workoutHistory));
+                        _origSetItem('appWeightHistoryData', JSON.stringify(weightHistoryData));
+                        _origSetItem('autoStartTimer', autoStartTimer ? 'true' : 'false');
+                        _origSetItem('nextTab', nextTab);
+                        _origSetItem('currentTab', currentTab);
                         if (data.startDate) _origSetItem('workoutStartDate', data.startDate);
                         if (data.acknowledged) _origSetItem('workoutCycleAcknowledged', data.acknowledged);
 

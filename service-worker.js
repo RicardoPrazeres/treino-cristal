@@ -1,33 +1,35 @@
 // Service Worker - Treinos Ricardo
-const CACHE_NAME = 'treinos-ricardo-v2';
+const CACHE_NAME = 'treinos-ricardo-v3';
 
-// Todos os recursos necessários para o app funcionar offline
-const ASSETS_TO_CACHE = [
+const LOCAL_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-180.png',
-  // CDN do Tailwind (tenta cachear, mas app funciona sem ele pois tudo está inline)
+];
+
+// Dependências visuais e de inicialização usadas antes do login.
+const EXTERNAL_ASSETS = [
   'https://cdn.tailwindcss.com',
-  // Font Awesome
+  'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2',
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js',
+  'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js',
 ];
 
 // --- INSTALL: Cacheia os assets essenciais ---
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Cacheia recursos locais obrigatoriamente
-      const localAssets = ['./', './index.html', './manifest.json'];
-      return cache.addAll(localAssets).then(() => {
+      return cache.addAll(LOCAL_ASSETS).then(() => {
         // Tenta cachear recursos externos (falha silenciosa)
-        const externalAssets = ASSETS_TO_CACHE.filter(url => url.startsWith('http'));
         return Promise.allSettled(
-          externalAssets.map(url =>
+          EXTERNAL_ASSETS.map(url =>
             fetch(url, { mode: 'no-cors' })
               .then(response => cache.put(url, response))
               .catch(() => {}) // ignora falhas de CDN
@@ -67,7 +69,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         // Recurso no cache: serve imediatamente e atualiza em background
-        const fetchPromise = fetch(event.request)
+        fetch(event.request)
           .then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
               const responseClone = networkResponse.clone();
